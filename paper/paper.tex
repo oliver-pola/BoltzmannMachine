@@ -1,0 +1,174 @@
+\documentclass[
+	12pt,
+	a4paper,
+	BCOR10mm,
+	%chapterprefix,
+	DIV14,
+	headsepline,
+	usegeometry,
+	%twoside,
+	%openright
+]{scrreprt}
+
+\KOMAoptions{
+	listof=totoc,
+	bibliography=totoc,
+	index=totoc
+}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{lmodern}
+
+\usepackage[english]{babel}
+%\usepackage[ngerman]{babel}
+
+\usepackage[toc]{appendix}
+\usepackage{color}
+\usepackage{eurosym}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage[htt]{hyphenat}
+\usepackage{listings}
+\usepackage{lstautogobble}
+\usepackage{microtype}
+\usepackage[list=true,hypcap=true]{subcaption}
+\usepackage{textcomp}
+\usepackage{units}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{varioref}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{setspace}
+\usepackage{tikz,pgfplots}
+\usepackage{todonotes}
+\usepackage[super]{nth}
+
+\usetikzlibrary{positioning,calc}
+
+\pgfplotsset{compat=newest}
+
+\definecolor{uhhred}{cmyk}{0,1,1,0}
+\definecolor{darkred}{cmyk}{0,1,1,0}
+
+\lstset{
+	frame=single,
+	aboveskip=20pt,
+	belowskip=10pt,
+	basicstyle={\scriptsize\ttfamily},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{magenta},
+	commentstyle=\color{gray},
+	stringstyle=\color{teal},
+	emphstyle=\color{blue},
+	language=python,
+	breaklines=true,
+	breakatwhitespace=true,
+	postbreak=\hbox{$\hookrightarrow$ },
+	showstringspaces=false,
+	autogobble=true,
+	upquote=true,
+	tabsize=4,
+	captionpos=b,
+	morekeywords={as,with}
+}
+
+
+\makeatletter
+\renewcommand*{\lstlistlistingname}{List of Listings}
+\addto{\captionsenglish}{%
+  \renewcommand{\bibname}{References}
+}
+\makeatother
+
+\begin{document}
+
+\newgeometry{left=2cm, top=2cm, right=2cm, bottom=2cm}
+
+\begin{titlepage}
+	\includegraphics[width=0.5\textwidth]{fig/UHH-Logo_2010_Farbe_CMYK}
+
+	\begin{center}
+		{\Large \textcolor{uhhred}{\textbf{Seminar Paper}}\par}
+
+		\vspace{1cm}
+
+		{\titlefont\huge Boltzmann Machine\par}
+
+		\vspace{1cm}
+
+		{\large Neural Networks Seminar\par}
+
+		\vspace{1cm}
+
+		{\large Summer term 2020\par}
+
+		\vspace{1cm}
+
+		{\large by\par}
+
+		\vspace{0.5cm}
+
+		{\large Michael Blesel, Oliver Pola\par}
+	\end{center}
+
+	\vfill
+
+	{\large\noindent\begin{tabular}{l}
+		Knowledge Technology Research Group\\
+		Department of Informatics\\
+		Faculty of Mathematics, Informatics and Natural Sciences\\
+		Universität Hamburg
+	\end{tabular}\par}
+
+	\vspace{1cm}
+
+	{\large\noindent\begin{tabular}{ll}
+		Supervisors:    		& Dr. Cornelius Weber\\
+						& Dennis Becker\\
+		\\
+		Hamburg, xx.xx.2020
+	\end{tabular}\par}
+\end{titlepage}
+
+\restoregeometry
+
+
+\tableofcontents
+
+
+\chapter{Introduction}
+
+
+\chapter{Boltzmann Machine}
+
+\cite{Ackley}
+
+
+\chapter{Implementation}
+
+
+\chapter{Variants}
+
+
+\section{Time series data}
+
+
+\section{Continuous data}
+
+
+\chapter{Results}
+
+
+\chapter{Conclusion}
+
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

@@ -139,4 +139,4 @@ paper/*.*
 !paper/Makefile
 !paper/*.tex
 !paper/*.bib
-# !paper/fig/*
+!paper/fig/*
