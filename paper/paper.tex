@@ -78,6 +78,8 @@
 	morekeywords={as,with}
 }
 
+% no pagebreaks for paper OUTLINE
+\renewcommand\clearpage{}
 
 \makeatletter
 \renewcommand*{\lstlistlistingname}{List of Listings}
@@ -115,6 +117,10 @@
 		\vspace{0.5cm}
 
 		{\large Michael Blesel, Oliver Pola\par}
+		
+		% only for OUTLINE, DRAFT
+		\vspace{2cm}
+		{\huge\textcolor{uhhred}{\textbf{OUTLINE}}}
 	\end{center}
 
 	\vfill
@@ -144,28 +150,42 @@
 
 \chapter{Introduction}
 
+The idea of a Boltzmann Machine (BM) is quite old~\cite{Ackley}. Similar to neural networks in general, the topic has been asleep for quite a while. Now that we have the necessary computing power, it's time to revive those ideas.
+
 
 \chapter{Boltzmann Machine}
 
-\cite{Ackley}
+Here we will give an introduction to the theoretical concept of a BM. It is based on concepts from physics, especially statistical mechanics, like the Ising model~\cite{Ising}. Idea is to have a stochastic neural network that finds a ``energy minimum'' while a overall ``temperature'' is slowly reduced.
 
 
 \chapter{Implementation}
 
+We will try to implement the concept of a BM in a modern framework like Tensorflow or PyTorch, if that makes sense. That will be experiments, where we can't predict the results yet.
+
 
 \chapter{Variants}
+
+When we have an implementation that can do what code of others can do as well, we will try to contribute some new approaches and maybe enlarge the scope of problems a BM can be used for.
 
 
 \section{Time series data}
 
+So far a BM was only applied to static data.
+
 
 \section{Continuous data}
+
+So far a BM was only applied to discrete data.
 
 
 \chapter{Results}
 
+We will try to find a suitable problem set, where we can apply our implementation and can compare it to other, more standard, solutions. Also, if applicable, we compare different variants / implementations of our BM.
+
 
 \chapter{Conclusion}
+
+We will conclude with our interpretation of the results and will point out where future work would be beneficial.
 
 
 \bibliographystyle{apalike}
