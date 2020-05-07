@@ -78,9 +78,6 @@
 	morekeywords={as,with}
 }
 
-% no pagebreaks for paper OUTLINE
-\renewcommand\clearpage{}
-
 \makeatletter
 \renewcommand*{\lstlistlistingname}{List of Listings}
 \addto{\captionsenglish}{%
@@ -145,6 +142,11 @@
 \restoregeometry
 
 
+% no pagebreaks for paper OUTLINE
+\let\StandardClearpage\clearpage
+\let\clearpage\relax
+
+
 \tableofcontents
 
 
@@ -195,17 +197,21 @@ We will try to find a suitable problem set, where we can apply our implementatio
 
 \chapter{Discussion}
 
-Do we need that? If it's rather short maybe included in the conclusion?  % TODO
+The discussion of the results may be included in the results chapter and not be worth a separate one. % TODO
 
 
 \chapter{Limitations}
 
-This might be optional. % TODO
+Since this is an implementation topic, the main limitations derive from our implementation and may be discussed in that chapter. So this might not result in a chapter on it's own. % TODO
 
 
 \chapter{Conclusion}
 
 We will conclude with our interpretation of the results and will point out where future work would be beneficial.
+
+
+% restore pagebreaks
+\let\clearpage\StandardClearpage
 
 
 \bibliographystyle{apalike}
