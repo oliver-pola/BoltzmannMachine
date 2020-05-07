@@ -1,220 +1,268 @@
-\documentclass[
-	12pt,
-	a4paper,
-	BCOR10mm,
-	%chapterprefix,
-	DIV14,
-	headsepline,
-	usegeometry,
-	%twoside,
-	%openright
-]{scrreprt}
+\documentclass[12pt,twoside]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Meta informations:
+\newcommand{\trauthor}{Michael Blesel, Oliver Pola}
+\newcommand{\trtype}{Seminar Paper} %{Seminararbeit} %{Proseminararbeit}
+\newcommand{\trcourse}{Neural Networks}
+\newcommand{\trtitle}{Boltzmann Machine}
+\newcommand{\trmatrikelnummer}{?, 6769946}
+\newcommand{\tremail}{\{3blesel, 5pola\}@informatik.uni-hamburg.de}
+\newcommand{\trarbeitsbereich}{Knowledge Technology, WTM}
+\newcommand{\trdate}{xx.xx.2020}
 
-\KOMAoptions{
-	listof=totoc,
-	bibliography=totoc,
-	index=totoc
-}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Languages:
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+% Falls die Ausarbeitung in Deutsch erfolgt:
+% \usepackage[german]{babel}
+% \usepackage[T1]{fontenc}
+% \usepackage[latin1]{inputenc}
+% \usepackage[latin9]{inputenc}	 				
+% \selectlanguage{german}
 
-\usepackage{lmodern}
+% If the thesis is written in English:
+\usepackage[english]{babel} 						
+\selectlanguage{english}
 
-\usepackage[english]{babel}
-%\usepackage[ngerman]{babel}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bind packages:
+\usepackage{acronym}                    % Acronyms
+\usepackage{algorithmic}								% Algorithms and Pseudocode
+\usepackage{algorithm}									% Algorithms and Pseudocode
+\usepackage{amsfonts}                   % AMS Math Packet (Fonts)
+\usepackage{amsmath}                    % AMS Math Packet
+\usepackage{amssymb}                    % Additional mathematical symbols
+\usepackage{amsthm}
+\usepackage{booktabs}                   % Nicer tables
+%\usepackage[font=small,labelfont=bf]{caption} % Numbered captions for figures
+\usepackage{color}                      % Enables defining of colors via \definecolor
+\definecolor{uhhRed}{RGB}{254,0,0}		  % Official Uni Hamburg Red
+\definecolor{uhhGrey}{RGB}{122,122,120} % Official Uni Hamburg Grey
+\usepackage{fancybox}                   % Gleichungen einrahmen
+\usepackage{fancyhdr}										% Packet for nicer headers
+%\usepackage{fancyheadings}             % Nicer numbering of headlines
 
-\usepackage[toc]{appendix}
-\usepackage{color}
-\usepackage{eurosym}
-\usepackage{fancyhdr}
-\usepackage{geometry}
-\usepackage{graphicx}
-\usepackage[htt]{hyphenat}
-\usepackage{listings}
-\usepackage{lstautogobble}
-\usepackage{microtype}
-\usepackage[list=true,hypcap=true]{subcaption}
-\usepackage{textcomp}
-\usepackage{units}
-\usepackage{amsmath,amsthm}
-\usepackage{amsfonts}
-\usepackage{mathtools}
-\usepackage{varioref}
-\usepackage[hidelinks]{hyperref}
-\usepackage[capitalise,noabbrev]{cleveref}
-\usepackage{setspace}
-\usepackage{tikz,pgfplots}
-\usepackage{todonotes}
-\usepackage[super]{nth}
+%\usepackage[outer=3.35cm]{geometry} 	  % Type area (size, margins...) !!!Release version
+%\usepackage[outer=2.5cm]{geometry} 		% Type area (size, margins...) !!!Print version
+%\usepackage{geometry} 									% Type area (size, margins...) !!!Proofread version
+\usepackage[outer=3.15cm]{geometry} 	  % Type area (size, margins...) !!!Draft version
+\geometry{a4paper,body={5.8in,9in}}
 
-\usetikzlibrary{positioning,calc}
+\usepackage{graphicx}                   % Inclusion of graphics
+%\usepackage{latexsym}                  % Special symbols
+\usepackage{longtable}									% Allow tables over several parges
+\usepackage{listings}                   % Nicer source code listings
+\usepackage{multicol}										% Content of a table over several columns
+\usepackage{multirow}										% Content of a table over several rows
+\usepackage{rotating}										% Alows to rotate text and objects
+\usepackage[hang]{subfigure}            % Allows to use multiple (partial) figures in a fig
+%\usepackage[font=footnotesize,labelfont=rm]{subfig}	% Pictures in a floating environment
+\usepackage{tabularx}										% Tables with fixed width but variable rows
+\usepackage{url,xspace,boxedminipage}   % Accurate display of URLs
 
-\pgfplotsset{compat=newest}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Configurationen:
 
-\definecolor{uhhred}{cmyk}{0,1,1,0}
-\definecolor{darkred}{cmyk}{0,1,1,0}
+\hyphenation{whe-ther} 									% Manually use: "\-" in a word: Staats\-ver\-trag
 
-\lstset{
-	frame=single,
-	aboveskip=20pt,
-	belowskip=10pt,
-	basicstyle={\scriptsize\ttfamily},
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	keywordstyle=\color{magenta},
-	commentstyle=\color{gray},
-	stringstyle=\color{teal},
-	emphstyle=\color{blue},
-	language=python,
-	breaklines=true,
-	breakatwhitespace=true,
-	postbreak=\hbox{$\hookrightarrow$ },
-	showstringspaces=false,
-	autogobble=true,
-	upquote=true,
-	tabsize=4,
-	captionpos=b,
-	morekeywords={as,with}
-}
+%\lstloadlanguages{C}                   % Set the default language for listings
+\DeclareGraphicsExtensions{.pdf,.svg,.jpg,.png,.eps} % first try pdf, then eps, png and jpg
+\graphicspath{{./src/}} 								% Path to a folder where all pictures are located
+\pagestyle{fancy} 											% Use nicer header and footer
 
-\makeatletter
-\renewcommand*{\lstlistlistingname}{List of Listings}
-\addto{\captionsenglish}{%
-  \renewcommand{\bibname}{References}
-}
-\makeatother
+% Redefine the environments for floating objects:
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.9} 			  %Standard: 0.7
+\renewcommand{\bottomfraction}{0.5}		  %Standard: 0.3
+\renewcommand{\textfraction}{0.1}		  	%Standard: 0.2
+\renewcommand{\floatpagefraction}{0.8} 	%Standard: 0.5
 
+% Tables with a nicer padding:
+\renewcommand{\arraystretch}{1.2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Additional 'theorem' and 'definition' blocks:
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{theorem}{Satz}[section]		% Wenn in Deutsch geschrieben wird.
+\newtheorem{axiom}{Axiom}[section] 	
+%\newtheorem{axiom}{Fakt}[chapter]			% Wenn in Deutsch geschrieben wird.
+%Usage:%\begin{axiom}[optional description]%Main part%\end{fakt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+%Additional types of axioms:
+\newtheorem{lemma}[axiom]{Lemma}
+\newtheorem{observation}[axiom]{Observation}
+
+%Additional types of definitions:
+\theoremstyle{remark}
+%\newtheorem{remark}[definition]{Bemerkung} % Wenn in Deutsch geschrieben wird.
+\newtheorem{remark}[definition]{Remark} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Provides TODOs within the margin:
+\newcommand{\TODO}[1]{\marginpar{\emph{\small{{\bf TODO: } #1}}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abbreviations and mathematical symbols
+\newcommand{\modd}{\text{ mod }}
+\newcommand{\RS}{\mathbb{R}}
+\newcommand{\NS}{\mathbb{N}}
+\newcommand{\ZS}{\mathbb{Z}}
+\newcommand{\dnormal}{\mathit{N}}
+\newcommand{\duniform}{\mathit{U}}
+
+\newcommand{\erdos}{Erd\H{o}s}
+\newcommand{\renyi}{-R\'{e}nyi}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document:
 \begin{document}
+\renewcommand{\headheight}{14.5pt}
 
-\newgeometry{left=2cm, top=2cm, right=2cm, bottom=2cm}
+\fancyhead{}
+\fancyhead[LE]{ \slshape \trauthor}
+\fancyhead[LO]{}
+\fancyhead[RE]{}
+\fancyhead[RO]{ \slshape \trtitle}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Cover Header:
 \begin{titlepage}
-	\includegraphics[width=0.5\textwidth]{fig/UHH-Logo_2010_Farbe_CMYK}
-
+	\begin{flushleft}
+		Universit\"at Hamburg\\
+		Department Informatik\\
+		\trarbeitsbereich\\
+	\end{flushleft}
+	\vspace{3.5cm}
 	\begin{center}
-		{\Large \textcolor{uhhred}{\textbf{Seminar Paper}}\par}
-
-		\vspace{1cm}
-
-		{\titlefont\huge Boltzmann Machine\par}
-
-		\vspace{1cm}
-
-		{\large Neural Networks Seminar\par}
-
-		\vspace{1cm}
-
-		{\large Summer term 2020\par}
-
-		\vspace{1cm}
-
-		{\large by\par}
-
-		\vspace{0.5cm}
-
-		{\large Michael Blesel, Oliver Pola\par}
-		
-		% only for OUTLINE, DRAFT
-		\vspace{2cm}
-		{\huge\textcolor{uhhred}{\textbf{OUTLINE}}}
+		\huge \trtitle\\
 	\end{center}
-
+	\vspace{3.5cm}
+	\begin{center}
+		\normalsize\trtype\\
+		[0.2cm]
+		\Large\trcourse\\
+		[1.5cm]
+		\Large \trauthor\\
+		[0.2cm]
+		\normalsize Matr.Nr. \trmatrikelnummer\\
+		[0.2cm]
+		\normalsize\tremail\\
+		[1.5cm]
+		\Large \trdate
+	\end{center}
 	\vfill
-
-	{\large\noindent\begin{tabular}{l}
-		Knowledge Technology Research Group\\
-		Department of Informatics\\
-		Faculty of Mathematics, Informatics and Natural Sciences\\
-		Universität Hamburg
-	\end{tabular}\par}
-
-	\vspace{1cm}
-
-	{\large\noindent\begin{tabular}{ll}
-		Supervisors:    		& Dr. Cornelius Weber\\
-						& Dennis Becker\\
-		\\
-		Hamburg, xx.xx.2020
-	\end{tabular}\par}
 \end{titlepage}
 
-\restoregeometry
+	%backsite of cover sheet is empty!
+\thispagestyle{empty}
+\hspace{1cm}
+\newpage
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract:
 
-% no pagebreaks for paper OUTLINE
-\let\StandardClearpage\clearpage
-\let\clearpage\relax
-
-
-\tableofcontents
-
-
-\chapter*{Abstract}
+% Abstract gives a brief summary of the main points of a paper:
+\section*{Abstract}
 
 Here will be an abstract.
 
 
-\chapter{Introduction}
+% Lists:
+\setcounter{tocdepth}{2} 					% depth of the table of contents (for Seminars 2 is recommented)
+\tableofcontents
+\pagenumbering{arabic}
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Content:
+
+% the actual content, usually separated over a number of sections
+% each section is assigned a label, in order to be able to put a
+% crossreference to it
+
+\section{Introduction}
+\label{sec:intro}
 
 The idea of a Boltzmann Machine (BM) is quite old~\cite{Ackley}. Similar to neural networks in general, the topic has been asleep for quite a while. Now that we have the necessary computing power, it's time to revive those ideas.
 
 
-\chapter{Boltzmann Machine}
+\section{Boltzmann Machine}
+\label{sec:bm}
 
 Here we will give an introduction to the theoretical concept of a BM. It is based on concepts from physics, especially statistical mechanics, like the Ising model~\cite{Ising}. Idea is to have a stochastic neural network that finds a ``energy minimum'' while a overall ``temperature'' is slowly reduced.
 
 
-\chapter{Related Work}
+\section{Related Work}
+\label{sec:related}
 
 Here we will mention the works on BM we found and got inspiration from, but also outline what we will do different (see Variants).
 
 
-\chapter{Implementation}
+\section{Implementation}
+\label{sec:impl}
 
 We will try to implement the concept of a BM in a modern framework like Tensorflow or PyTorch, if that makes sense. That will be experiments, where we can't predict the results yet.
 
 
-\chapter{Variants}
+\section{Variants}
+\label{sec:variants}
 
 When we have an implementation that can do what code of others can do as well, we will try to contribute some new approaches and maybe enlarge the scope of problems a BM can be used for.
 
 
-\section{Time series data}
+\subsection{Time series data}
+\label{sec:variants:subsec:timeseries}
 
 So far a BM was only applied to static data.
 
 
-\section{Continuous data}
+\subsection{Continuous data}
+\label{sec:variants:subsec:continuous}
 
 So far a BM was only applied to discrete data.
 
 
-\chapter{Results}
+\section{Results}
+\label{sec:results}
 
 We will try to find a suitable problem set, where we can apply our implementation and can compare it to other, more standard, solutions. Also, if applicable, we compare different variants / implementations of our BM.
 
 
-\chapter{Discussion}
+\section{Discussion}
+\label{sec:discuss}
 
 The discussion of the results may be included in the results chapter and not be worth a separate one. % TODO
 
 
-\chapter{Limitations}
+\section{Limitations}
+\label{sec:limits}
 
 Since this is an implementation topic, the main limitations derive from our implementation and may be discussed in that chapter. So this might not result in a chapter on it's own. % TODO
 
 
-\chapter{Conclusion}
+\section{Conclusion}
+\label{sec:concl}
 
 We will conclude with our interpretation of the results and will point out where future work would be beneficial.
 
 
-% restore pagebreaks
-\let\clearpage\StandardClearpage
-
-
-\bibliographystyle{apalike}
-\bibliography{references}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% hier werden - zum Ende des Textes - die bibliographischen Referenzen
+% eingebunden
+%
+% Insbesondere stehen die eigentlichen Informationen in der Datei
+% ``bib.bib''
+%
+\newpage
+\bibliographystyle{plain}
+\addcontentsline{toc}{section}{Bibliography}% Add to the TOC
+\bibliography{bib}
 
 \end{document}
+
+
