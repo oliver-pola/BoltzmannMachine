@@ -126,7 +126,7 @@ class Boltzman:
             # Negative phase
             self.states = np.random.choice([0,1], self.num_units)
             self.anneal(self.annealing_schedule, np.zeros(self.num_visible_units))
-            pminus = self.sum_coocurrance(np.zeros(self.num_visible_units))
+            pminus = self.sum_coocurrance(np.zeros(self.num_visible_units)) / self.coocurrance_cycle.epochs
 
             self.update_weights(pplus, pminus)
 
@@ -171,9 +171,11 @@ class Boltzman:
         clamp_mask = np.append(clamp_mask, np.zeros(self.num_hidden_units, dtype=np.int))
 
         # TODO check if this is actually the correct behaviour
-        for i in np.where(clamp_mask == 0)[0]:
+        unclamped_idxs = np.where(clamp_mask == 0)[0]
+        choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0])
+        for i in range(unclamped_idxs.shape[0]):
             # Calculating the energy of a randomly selected unit    
-            unit = np.random.choice(np.where(clamp_mask == 0)[0])
+            unit = choices[i]
             self.energy[unit] = np.dot(self.weights[unit,:], self.states)
 
             p = 1. / (1. + np.exp(-self.energy[unit] / temperature))
