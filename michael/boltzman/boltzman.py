@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+import sys
 
 
 class Boltzman:
@@ -20,6 +21,8 @@ class Boltzman:
     annealing_schedule = []
     coocurrance_cycle = None
 
+    synchron_update = False
+
     weights = None
     states = None
     energy = None
@@ -37,7 +40,7 @@ class Boltzman:
     ##          of (<temperature>, <epochs>)
     ## coocurance: Coocurance cycle. One tuple in the form of (<temperature>, <epochs>)
     #
-    def __init__(self, visible, hidden, output, annealing, coocurance):
+    def __init__(self, visible, hidden, output, annealing, coocurance, synchron_update=False):
         self.num_visible_units = visible
         self.num_hidden_units = hidden
         self.num_units = visible + hidden
@@ -47,9 +50,11 @@ class Boltzman:
             self.annealing_schedule.append(self.Step(tuple[0], tuple[1]))
         self.coocurrance_cycle = self.Step(coocurance[0], coocurance[1])
 
+        self.synchron_update = synchron_update
+
         self.weights = np.zeros((self.num_units, self.num_units))
         self.states = np.zeros(self.num_units)
-        self.energy = np.zeros(self.num_units)
+        self.energy = np.zeros(self.num_units, dtype=np.float128)
 
         self.init_connections()
 
@@ -169,17 +174,27 @@ class Boltzman:
     def propagate(self, temperature, clamp_mask):
         clamp_mask = np.array(clamp_mask, dtype=np.int)
         clamp_mask = np.append(clamp_mask, np.zeros(self.num_hidden_units, dtype=np.int))
-
-        # TODO check if this is actually the correct behaviour
         unclamped_idxs = np.where(clamp_mask == 0)[0]
-        choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0])
-        for i in range(unclamped_idxs.shape[0]):
-            # Calculating the energy of a randomly selected unit    
-            unit = choices[i]
-            self.energy[unit] = np.dot(self.weights[unit,:], self.states)
 
-            p = 1. / (1. + np.exp(-self.energy[unit] / temperature))
-            self.states[unit] = 1. if np.random.uniform() <= p else 0
+        if (self.synchron_update == True):
+            # TODO Some error in here? getting overflow in np.exp Warning
+            # might be depending on parameters. synchronous update might need different
+            # runtime parameters to work here. It works with energy being dtype np.float128
+            # But results using this update function are not good
+            self.energy[unclamped_idxs] = np.dot(self.weights[unclamped_idxs,:], self.states)
+            p = np.zeros(unclamped_idxs.shape[0])
+            p = 1. / (1. + np.exp(-self.energy[unclamped_idxs] / temperature))
+
+            self.states[unclamped_idxs] = np.random.uniform(size=unclamped_idxs.shape[0]) <= p
+        else:
+            choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0])
+            for i in range(unclamped_idxs.shape[0]):
+                # Calculating the energy of a randomly selected unit    
+                unit = choices[i]
+                self.energy[unit] = np.dot(self.weights[unit,:], self.states)
+
+                p = 1. / (1. + np.exp(-self.energy[unit] / temperature))
+                self.states[unit] = 1. if np.random.uniform() <= p else 0
 
     def sum_coocurrance(self, clamp_mask):
         sums = np.zeros(self.num_connections)
@@ -211,7 +226,7 @@ patterns = [[1, 0, 0, 0, 1, 0, 0, 0],
             [0, 0, 1, 0, 0, 0, 1, 0],
             [0, 0, 0, 1, 0, 0, 0, 1]]
 
-b = Boltzman(8,2,4,[(20.,2),(15.,2),(12.,2),(10.,4)], (10.,10))
+b = Boltzman(8,2,4,[(20.,2),(15.,2),(12.,2),(10.,4)], (10.,10), synchron_update=True)
 b.learn(patterns, 1800)
 
 print(b.weights)
