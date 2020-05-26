@@ -3,7 +3,6 @@
 import numpy as np
 import sys
 
-
 class Boltzman:
 
     class Step:
@@ -136,20 +135,37 @@ class Boltzman:
             self.update_weights(pplus, pminus)
 
 
-    # TODO Work in progress
-    def recall(self, pattern, clamp_mask):
+    #
+    ##
+    ##
+    #
+    def recall(self, pattern, clamp_mask, output_mask=[]):
+        # Check if the given pattern hast as many values as clamp_mask has clamped units
         pattern = np.array(pattern)
-        # Setting pattern to recall
-        # TODO check wether has to be num_input/output_units for other cases
-        self.states[0:self.num_input_units] = pattern
+        if(pattern.shape[0] != np.nonzero(clamp_mask)[0].shape[0]):
+            print("Error: number of given values for recall pattern does not match number of clamped units in given clamp_mask. Exiting.")
+            sys.exit(1)
 
-        # Assigning random values to the hidden and output states
-        # TODO fix this for other input/output configurations/clamping masks
-        self.states[-(self.num_hidden_units+self.num_output_units):] = \
-                np.random.choice([0,1], self.num_hidden_units+self.num_output_units)
+        # Set the given clamped units states
+        clamped_idxs = np.where(clamp_mask == 1)[0]
+        for i in range(clamped_idxs.shape[0]):
+            self.states[clamped_idxs[i]] = pattern[i]
+
+        # Set unclamped units states to random 0,1 values
+        unclamped_idxs = np.append(np.where(clamp_mask == 0)[0], \
+                np.arange(self.num_visible_units, self.num_units))
+        self.states[unclamped_idxs] = np.random.choice([0,1], unclamped_idxs.shape[0])
+
         self.anneal(self.annealing_schedule, clamp_mask)
 
-        return self.states[self.num_input_units:self.num_input_units+self.num_output_units]
+        # Decide which states will be output based on the output_mask
+        if output_mask == []:
+            # Return all visible units by default
+            return self.states[0:self.num_visible_units]
+        else:
+            # Only return states that are indicated by the output_mask
+            output_mask = np.array(output_mask)
+            return self.states[np.where(output_mask == 1)]
 
     
     #
@@ -217,22 +233,3 @@ class Boltzman:
                     # on if there where more active connections in the positive or negative phase
                     self.weights[i,j] += 2*np.sign(pplus[index] - pminus[index])
                     self.weights[j,i] = self.weights[i,j]
-
-
-
-
-patterns = [[1, 0, 0, 0, 1, 0, 0, 0],
-            [0, 1, 0, 0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0, 0, 1, 0],
-            [0, 0, 0, 1, 0, 0, 0, 1]]
-
-b = Boltzman(8,2,4,[(20.,2),(15.,2),(12.,2),(10.,4)], (10.,10), synchron_update=True)
-b.learn(patterns, 1800)
-
-print(b.weights)
-
-clamp_mask = np.append(np.ones(4), np.zeros(4))
-print(b.recall([1,0,0,0], clamp_mask))
-        
-
-
