@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 
-class Boltzman:
+class Boltzmann:
 
     class Step:
         def __init__(self, temperature, epochs):
@@ -14,12 +14,12 @@ class Boltzman:
 
     def __init__(self, visible, hidden, output, annealing, coocurance, synchron_update=False):
         """
-        Initialize a Boltzman machine with the given parameters
+        Initialize a Boltzmann machine with the given parameters
 
         visible: Number of visible units
         hidden: Number of hidden units
         output: Number of output units. If this number is not equal to visible
-              a boltzman machine with two visible layers is created, where
+              a Boltzmann machine with two visible layers is created, where
               the two visible layer do not have direct connections between each other
         annealing: An annealing schedule consisting of a list of tuples in the form
               of (<temperature>, <epochs>)
@@ -222,7 +222,7 @@ def Boltzmann_test():
                 [0, 0, 1, 0, 0, 0, 1, 0],
                 [0, 0, 0, 1, 0, 0, 0, 1]]
 
-    b = Boltzman(8,2,4,[(20.,2),(15.,2),(12.,2),(10.,4)], (10.,10), synchron_update=False)
+    b = Boltzmann(8,2,4,[(20.,2),(15.,2),(12.,2),(10.,4)], (10.,10), synchron_update=False)
     b.learn(patterns, 1800)
 
     print(b.weights)
