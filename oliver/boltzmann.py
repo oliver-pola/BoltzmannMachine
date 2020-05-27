@@ -102,7 +102,7 @@ class Boltzmann:
             pplus = np.zeros(self.num_connections)
 
             for p in range(num_patterns):
-                sys.stdout.write(f'\riteration {i+1}/{iterations}, pattern {p+1}/{num_patterns}          ')
+                sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns}          \r')
                 sys.stdout.flush()
                 # Setting visible units values
                 self.states[0:self.num_visible_units] = self.add_noise(patterns[p], noise_probability, noise_bias)
@@ -121,7 +121,6 @@ class Boltzmann:
             pminus = self.sum_coocurrance(visible_zeros) / self.coocurrance_cycle.epochs
 
             self.update_weights(pplus, pminus)
-        print()
 
 
     def recall(self, pattern, clamp_mask, output_mask=[]):

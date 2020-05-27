@@ -66,12 +66,13 @@ def get_data():
     return images, labels
 
 
-def test_restore345(images, labels):
+def test_restore345(images, labels, epochs, num_images):
     # just pick images with label 3, 4, 5
     mask = (labels == 3) | (labels == 4) | (labels == 5)
     img123 = images[mask, :, :]
     # reduce number of images
-    img123 = img123[:1000, :, :]
+    if num_images < img123.shape[0]
+        img123 = img123[:num_images, :, :]
     # reshape 28 x 28 image to vector of length 784
     print(f'learning images shape = {img123.shape}')
     count = img123.shape[0]
@@ -85,20 +86,26 @@ def test_restore345(images, labels):
     b = Boltzmann(length, hidden_layers, out_len,
         [(20.,2),(15.,2),(12.,2),(10.,4)],
         (10.,10), synchron_update=False)
-    # not so many iterations, as we have lots of images
-    b.learn(img123, 10)
+    # learning
+    b.learn(img123, epochs)
 
     # pick a sample 3
     sample = images[labels == 3][0]
-    plt.figure('test: restore a 3', figsize=(10, 4))
+    title = f'test restore, {epochs} epochs, {count} images (3s, 4s, 5s)'
+    plt.figure(title, figsize=(10, 4))
     plt.subplot(131)
     plt.imshow(sample, cmap='gray')
-    plt.title('sample')
+    plt.xticks([])
+    plt.yticks([])
+    plt.xlabel('sample')
     # destroy lower half just for visualization
     sample[images.shape[1] // 2:, :] = 0
     plt.subplot(132)
     plt.imshow(sample, cmap='gray')
-    plt.title('destroyed')
+    plt.xticks([])
+    plt.yticks([])
+    plt.xlabel('destroyed')
+    plt.title(title)
     # reduce to the remaining half and flatten
     destroyed = sample[:images.shape[1] // 2, :].reshape(in_len)
     # recall from Boltzmann
@@ -109,7 +116,9 @@ def test_restore345(images, labels):
     sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
     plt.subplot(133)
     plt.imshow(sample, cmap='gray')
-    plt.title('restored')
+    plt.xticks([])
+    plt.yticks([])
+    plt.xlabel('restored')
 
 
 def mnist_test():
@@ -117,7 +126,7 @@ def mnist_test():
     # plt.imshow(images[0,:,:], cmap='gray')
 
     # run tests
-    test_restore345(images, labels)
+    test_restore345(images, labels, 10, 10000)
 
     plt.show()
 
