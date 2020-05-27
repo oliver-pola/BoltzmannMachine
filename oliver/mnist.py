@@ -61,27 +61,32 @@ def get_data():
         print('Unzip MNIST training labels...')
         gunzip(labels_gz, labels_file)
         os.remove(labels_gz)
-    images = read_idx3(images_file) / 255 # range [0,1]
+    # images = read_idx3(images_file) / 255 # range [0,1]
+    images = (read_idx3(images_file) > 127) * 1 # binary 0 or 1
     labels = read_idx1(labels_file)
     return images, labels
 
 
 def test_restore345(images, labels, epochs, num_images):
     # just pick images with label 3, 4, 5
-    mask = (labels == 3) | (labels == 4) | (labels == 5)
+    pick_labels = [3, 4, 5]
+    mask = np.zeros(labels.shape, dtype=bool)
+    for pick_label in pick_labels:
+        mask = mask | (labels == pick_label)
     img123 = images[mask, :, :]
+    lbl123 = labels[mask]
     # reduce number of images
     if num_images < img123.shape[0]:
         img123 = img123[:num_images, :, :]
+        lbl123 = lbl123[:num_images]
     # reshape 28 x 28 image to vector of length 784
     print(f'learning images shape = {img123.shape}')
     count = img123.shape[0]
     length = img123.shape[1] * img123.shape[2]
     img123 = img123.reshape(count, length)
     print(f'learning flattened shape = {img123.shape}')
-    # consider first half as input, last half as output
-    out_len = length // 2
-    in_len = length - out_len
+    # consider whole image as input, no output
+    out_len = 0
     hidden_layers = 64
     b = Boltzmann(length, hidden_layers, out_len,
         [(20.,2),(15.,2),(12.,2),(10.,4)],
@@ -89,9 +94,27 @@ def test_restore345(images, labels, epochs, num_images):
     # learning
     b.learn(img123, epochs)
 
+    # some data statistics: count and mean image (distribution)
+    title = f'data distribution for test restore, {count} images'
+    plt.figure(title, figsize=(12, 4))
+
+    for i, pick_label in enumerate(pick_labels):
+        mean = np.mean(img123[lbl123 == pick_label], axis=0).reshape(images.shape[1], images.shape[2])
+        plt.subplot(1, 4, i+1)
+        plt.imshow(mean, cmap='gray')
+        if i > 0:
+            plt.yticks([])
+        plt.xlabel(f'mean of  label {pick_label}')
+    plt.suptitle(title, y=0.88)
+    ax = plt.subplot(144)
+    ax.hist(lbl123, bins=np.append(pick_labels, np.max(pick_labels) + 1), align='left', rwidth=0.9)
+    ax.set_aspect(1.0/ax.get_data_ratio())
+    plt.xlabel('label histogram')
+    plt.tight_layout()
+
     # pick a sample 3
     sample = images[labels == 3][0]
-    title = f'test restore, {epochs} epochs, {count} images (3s, 4s, 5s)'
+    title = f'test restore, {epochs} epochs, {count} images'
     plt.figure(title, figsize=(10, 4))
     plt.subplot(131)
     plt.imshow(sample, cmap='gray')
@@ -107,10 +130,10 @@ def test_restore345(images, labels, epochs, num_images):
     plt.xlabel('destroyed')
     plt.title(title)
     # reduce to the remaining half and flatten
-    destroyed = sample[:images.shape[1] // 2, :].reshape(in_len)
+    destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
     # recall from Boltzmann
-    clamp_mask = np.append(np.ones(in_len), np.zeros(out_len))
-    output_mask = np.append(np.zeros(in_len), np.ones(out_len))
+    clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
+    output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
     restore = b.recall(destroyed, clamp_mask, output_mask)
     # fill the lower half of sample
     sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
@@ -119,6 +142,7 @@ def test_restore345(images, labels, epochs, num_images):
     plt.xticks([])
     plt.yticks([])
     plt.xlabel('restored')
+    plt.tight_layout()
 
 
 def mnist_test():
@@ -126,7 +150,9 @@ def mnist_test():
     # plt.imshow(images[0,:,:], cmap='gray')
 
     # run tests
-    test_restore345(images, labels, 10, 10000)
+    epochs = 10
+    num_images = 10000
+    test_restore345(images, labels, epochs, num_images)
 
     plt.show()
 
