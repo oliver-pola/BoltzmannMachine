@@ -62,7 +62,7 @@ def get_data():
         gunzip(labels_gz, labels_file)
         os.remove(labels_gz)
     # images = read_idx3(images_file) / 255 # range [0,1]
-    images = (read_idx3(images_file) > 127) * 1 # binary 0 or 1
+    images = (read_idx3(images_file) > 127) * 1. # binary 0 or 1
     labels = read_idx1(labels_file)
     return images, labels
 
@@ -85,26 +85,19 @@ def test_restore345(images, labels, epochs, num_images):
     length = img123.shape[1] * img123.shape[2]
     img123 = img123.reshape(count, length)
     print(f'learning flattened shape = {img123.shape}')
-    # consider whole image as input, no output
-    out_len = 0
-    hidden_layers = 64
-    b = Boltzmann(length, hidden_layers, out_len,
-        [(20.,2),(15.,2),(12.,2),(10.,4)],
-        (10.,10), synchron_update=False)
-    # learning
-    b.learn(img123, epochs)
 
     # some data statistics: count and mean image (distribution)
+    print(f'mean image pixel sum = {np.mean(np.sum(img123, axis=1))}')
+    print(f'mean pixel value = {np.mean(img123)}')
     title = f'data distribution for test restore, {count} images'
-    plt.figure(title, figsize=(12, 4))
-
+    plt.figure(title.replace(',', ''), figsize=(12, 4))
     for i, pick_label in enumerate(pick_labels):
         mean = np.mean(img123[lbl123 == pick_label], axis=0).reshape(images.shape[1], images.shape[2])
         plt.subplot(1, 4, i+1)
         plt.imshow(mean, cmap='gray')
         if i > 0:
             plt.yticks([])
-        plt.xlabel(f'mean of  label {pick_label}')
+        plt.xlabel(f'mean of label {pick_label}')
     plt.suptitle(title, y=0.88)
     ax = plt.subplot(144)
     ax.hist(lbl123, bins=np.append(pick_labels, np.max(pick_labels) + 1), align='left', rwidth=0.9)
@@ -112,23 +105,33 @@ def test_restore345(images, labels, epochs, num_images):
     plt.xlabel('label histogram')
     plt.tight_layout()
 
+    # consider whole image as input, no output
+    out_len = 0
+    hidden_layers = 4
+    annealing = [(T, 1) for T in np.linspace(20, 12, 20)]
+    coocurance = (annealing[-1][0], 4)
+    b = Boltzmann(length, hidden_layers, out_len,
+        annealing, coocurance, synchron_update=False)
+    # learning
+    b.learn(img123, epochs, noise_probability=0.5)
+
     # pick a sample 3
     sample = images[labels == 3][0]
     title = f'test restore, {epochs} epochs, {count} images'
-    plt.figure(title, figsize=(10, 4))
-    plt.subplot(131)
+    plt.figure(title.replace(',', ''), figsize=(12, 4))
+    plt.subplot(141)
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
     plt.xlabel('sample')
     # destroy lower half just for visualization
     sample[images.shape[1] // 2:, :] = 0
-    plt.subplot(132)
+    plt.subplot(142)
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
     plt.xlabel('destroyed')
-    plt.title(title)
+    plt.suptitle(title, y=0.91)
     # reduce to the remaining half and flatten
     destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
     # recall from Boltzmann
@@ -137,11 +140,20 @@ def test_restore345(images, labels, epochs, num_images):
     restore = b.recall(destroyed, clamp_mask, output_mask)
     # fill the lower half of sample
     sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
-    plt.subplot(133)
+    plt.subplot(143)
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
     plt.xlabel('restored')
+    # try multiple restores and take average
+    restores = [b.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
+    restore = np.mean(np.array(restores, dtype=np.float), axis=0)
+    sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
+    plt.subplot(144)
+    plt.imshow(sample, cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
+    plt.xlabel('mean of 20 restores')
     plt.tight_layout()
 
 
