@@ -92,6 +92,7 @@ class Boltzmann:
 
         if (patterns.shape[1] != self.num_visible_units):
             print("Error: The given learning patterns are of the wrong size")
+            print(f'Expected shape (*, {self.num_visible_units}), got shape {patterns.shape}')
             sys.exit()
 
         visible_ones = np.ones(self.num_visible_units)
@@ -100,9 +101,11 @@ class Boltzmann:
             # Positive phase
             pplus = np.zeros(self.num_connections)
 
-            for pattern in patterns:
+            for p in range(num_patterns):
+                sys.stdout.write(f'\riteration {i+1}/{iterations}, pattern {p+1}/{num_patterns}          ')
+                sys.stdout.flush()
                 # Setting visible units values
-                self.states[0:self.num_visible_units] = self.add_noise(pattern, noise_probability, noise_bias)
+                self.states[0:self.num_visible_units] = self.add_noise(patterns[p], noise_probability, noise_bias)
 
                 # Give random values to hidden units
                 self.states[-self.num_hidden_units:] = np.random.choice([0,1],self.num_hidden_units)
@@ -118,6 +121,7 @@ class Boltzmann:
             pminus = self.sum_coocurrance(visible_zeros) / self.coocurrance_cycle.epochs
 
             self.update_weights(pplus, pminus)
+        print()
 
 
     def recall(self, pattern, clamp_mask, output_mask=[]):
@@ -125,6 +129,7 @@ class Boltzmann:
         pattern = np.array(pattern)
         if(pattern.shape[0] != np.nonzero(clamp_mask)[0].shape[0]):
             print("Error: number of given values for recall pattern does not match number of clamped units in given clamp_mask. Exiting.")
+            print(f'Got pattern shape {pattern.shape}, clamped units ({np.nonzero(clamp_mask)[0].shape[0]})')
             sys.exit(1)
 
         # Set the given clamped units states

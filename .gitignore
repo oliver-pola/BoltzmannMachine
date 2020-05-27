@@ -132,7 +132,11 @@ dmypy.json
 *.pdf
 *.tar.bz2
 *.zip
+*.gz
 *.tmp
+
+# Data folder
+/data/
 
 # LaTeX
 paper/*.*
