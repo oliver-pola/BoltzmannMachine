@@ -2,6 +2,7 @@
 
 import numpy as np
 import sys
+import time
 
 
 class Boltzmann:
@@ -97,13 +98,17 @@ class Boltzmann:
 
         visible_ones = np.ones(self.num_visible_units)
         visible_zeros = np.zeros(self.num_visible_units)
+        term_time = 0
         for i in range(iterations):
             # Positive phase
             pplus = np.zeros(self.num_connections)
 
             for p in range(num_patterns):
-                sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns}          \r')
-                sys.stdout.flush()
+                if time.time() > term_time + 1 or p == num_patterns - 1:
+                    term_time = time.time()
+                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns}          \r')
+                    sys.stdout.flush()
+
                 # Setting visible units values
                 self.states[0:self.num_visible_units] = self.add_noise(patterns[p], noise_probability, noise_bias)
 

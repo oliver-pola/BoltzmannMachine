@@ -71,7 +71,7 @@ def test_restore345(images, labels, epochs, num_images):
     mask = (labels == 3) | (labels == 4) | (labels == 5)
     img123 = images[mask, :, :]
     # reduce number of images
-    if num_images < img123.shape[0]
+    if num_images < img123.shape[0]:
         img123 = img123[:num_images, :, :]
     # reshape 28 x 28 image to vector of length 784
     print(f'learning images shape = {img123.shape}')
