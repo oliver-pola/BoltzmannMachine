@@ -106,7 +106,7 @@ class Boltzmann:
             for p in range(num_patterns):
                 if time.time() > term_time + 1 or p == num_patterns - 1:
                     term_time = time.time()
-                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns}          \r')
+                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns} clamped         \r')
                     sys.stdout.flush()
 
                 # Setting visible units values
@@ -121,11 +121,14 @@ class Boltzmann:
             pplus/= trials
 
             # Negative phase
+            sys.stdout.write(f'epoch {i+1}/{iterations}, free running                        \r')
+            sys.stdout.flush()
             self.states = np.random.choice([0,1], self.num_units)
             self.anneal(self.annealing_schedule, visible_zeros)
             pminus = self.sum_coocurrance(visible_zeros) / self.coocurrance_cycle.epochs
 
             self.update_weights(pplus, pminus)
+        sys.stdout.write(f'\n')
 
 
     def recall(self, pattern, clamp_mask, output_mask=[]):
@@ -184,7 +187,7 @@ class Boltzmann:
             p = 1. / (1. + np.exp(-self.energy[unclamped_idxs] / temperature))
             self.states[unclamped_idxs] = np.random.uniform(size=unclamped_idxs.shape[0]) <= p
         else:
-            choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0])
+            choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0], replace=False)
             for i in range(unclamped_idxs.shape[0]):
                 # Calculating the energy of a randomly selected unit
                 unit = choices[i]

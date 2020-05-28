@@ -107,17 +107,23 @@ def test_restore345(images, labels, epochs, num_images):
 
     # consider whole image as input, no output
     out_len = 0
-    hidden_layers = 4
-    annealing = [(T, 1) for T in np.linspace(20, 12, 20)]
-    coocurance = (annealing[-1][0], 4)
+    hidden_layers = length # equal amount as visible layers
+    annealing = [(1., 1000)]
+    coocurance = (annealing[-1][0], 10)
+    synchron_update = True
+    noise_probability = 0.5
     b = Boltzmann(length, hidden_layers, out_len,
-        annealing, coocurance, synchron_update=False)
+        annealing, coocurance, synchron_update=True)
     # learning
-    b.learn(img123, epochs, noise_probability=0.5)
+    b.learn(img123, epochs, noise_probability=noise_probability)
+    print('learning finished')
 
     # pick a sample 3
     sample = images[labels == 3][0]
-    title = f'test restore, {epochs} epochs, {count} images'
+    blind_iter = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
+    weights_iter = coocurance[1]
+    sync_text = 'synchron' if synchron_update else 'asynchron'
+    title = f'test restore, {epochs} epochs, {count} images, {noise_probability} noise, {hidden_layers} hidden layer, {blind_iter} blind iter, {weights_iter} weights update iter, T={annealing[-1][0]:.0f}, {sync_text}'
     plt.figure(title.replace(',', ''), figsize=(12, 4))
     plt.subplot(141)
     plt.imshow(sample, cmap='gray')
@@ -135,6 +141,7 @@ def test_restore345(images, labels, epochs, num_images):
     # reduce to the remaining half and flatten
     destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
     # recall from Boltzmann
+    print('restore by recall...')
     clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
     output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
     restore = b.recall(destroyed, clamp_mask, output_mask)
@@ -162,8 +169,8 @@ def mnist_test():
     # plt.imshow(images[0,:,:], cmap='gray')
 
     # run tests
-    epochs = 10
-    num_images = 10000
+    epochs = 3
+    num_images = 3
     test_restore345(images, labels, epochs, num_images)
 
     plt.show()
