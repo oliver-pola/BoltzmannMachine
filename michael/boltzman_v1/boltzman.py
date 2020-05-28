@@ -32,7 +32,7 @@ class Boltzman:
     ## 
     ## visible: Number of visible units
     ## hidden: Number of hidden units
-    ## output: Number of output units. If this number is not equal to visible
+    ## output: Number of output units. If this number is not equal to visible or 0
     ##          a boltzman machine with two visible layers is created, where
     ##          the two visible layer do not have direct connections between each other
     ## annealing: An annealing schedule consisting of a list of tuples in the form
@@ -98,7 +98,7 @@ class Boltzman:
 
 
     #
-    ##
+    ## 
     ##
     #
     def learn(self, patterns, iterations, noise_probability=0.8, noise_bias=0.05):
