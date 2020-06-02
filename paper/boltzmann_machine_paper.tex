@@ -259,11 +259,9 @@ This procedure is called 'clamping' the visible units, which means that during t
 algorithm the states of these units will not change and they will influence the computed states for the hidden units.
 
 \begin{figure}[h]
-\begin{lstlisting}[escapeinside={(*}{*)}]
+\begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
+SET learning_epochs, co-occurance_epochs, temperature T
 SET weight matrix W = 0
-SET learning_epochs = <number>
-SET co-occurance_epochs = <number>
-SET temperature T = <number>
 LEARNING():
   WHILE W continues to change DO:
     #Positive phase
@@ -290,7 +288,7 @@ UPDATE(epochs):
     FOR 1 to number of unclamped units:
       randomly select an unclamped unit i
       Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
-      #Stochastically decide if the units resulting state
+      #Stochastically decide the resulting state
       IF (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
         SET (*$x_i = 1$*)
       ELSE:
@@ -298,19 +296,89 @@ UPDATE(epochs):
 
 COLLECT-STATISTICS():
   CALL UPDATE(co-occurance_epochs)
-  #Sum co-occurance of active states
   FOR EACH pair of connected units:
     SET (*$S_{ij} = S_{ij} + x_i x_j$*)
 \end{lstlisting}
 \caption{The learning algorithm}
 % http://gorayni.blogspot.com/2014/06/boltzmann-machines.html
-\label{fig:leaning-alg}
+\label{fig:learning-alg}
 \end{figure}
+
+In figure \cref{fig:learning-alg} we can see the basic learning algorithm of the Boltzmann machine in pseudo code form.
+The code in the figure is a simplified version of the algorithm from \ref{} \todo{cite blogpost}
+To best explain the algorithm we are going to divide it into four logical parts.
+\begin{enumerate}
+    \item \textbf{The setup phase:}\newline
+        Before the learning algorithm can start we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
+        The choice of zero here instead of an initialization with random values as it is often done for other neural networks is
+        necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
+        The next thing to do is setting values for the temperature, learning and co-occurance epochs. 
+        \todo{explain temperature}
+        
+        The learning and co-occurance epochs parameters will be explained in the description of the following phases.\newline
+        From here on the algorithm can begin. The first thing we can see in line 4 is that the whole learning procedure (the next three steps) is
+        supposed to be executed until the values of the weight matrix have converged and no more changes are observed.
+        From a theoretical point of view this happens when the equilibrium state has been reached. \todo{explain in more detail or reference previous subsection}
+        In our practitcal implementation the while loop is replaced by a for loop with an iteration counter that can be set before the learning process.
+    \item \textbf{The positive phase:}\newline
+        The actual learning algorithm starts with the so called positive phase. In this phase the given input patterns are learned.
+        First the units of the visible layer are set to the values of the current input vector and all visible units are clamped.
+        All unclamped units (in this case the units of the hidden layer) are initialized with random binary values.
+        Now the actual updating of the states takes place by calling the update function as many times as the learning epochs variable has been set to.
+        This is another parameter that has to be set before the start of the learning algorithm and which has to be tuned to fit the problem.\newline
+        In the update function the stochastic update of the states of the unclamped units takes place. The update calculations are done
+        step-by-step for randomly chosen unclamped units. This version of the update procedure is called asynchronous and we will
+        compare it to another possible version called the synchronous update, where the updates do not take place in order
+        but are computed all at once in section \cref{subsec:updating-procedures}.\newline
+        % The following part probably needs to be way better explained
+        For each chosen unit at first its energy difference is calculated with the formula $\Delta E_i = \sum_j W_{ij} x_j$. \todo{explain formula or cite explanation from previous section}
+        \todo{explain stochastic activation formula and stuff...}
+        
+
+        This whole procedure is repeated for all given input patterns. The last step of the positive phase is the collect statistics function which will be explained in
+        the 'updating the weights' segment.
+
+
+    \item \textbf{The free-running phase:}\newline
+        After the positive phase the negative or 'free-running' phase starts. This phase is different to the positive phase in the fact that
+        now all units of both layers are treated as unclamped. This means that also the visible layers units states can now be updated.
+        \todo{explain what this phase is for}
+
+    \item \textbf{Updating the weights:}\newline
+        \todo{explain co-occurance and how the weights are updated}
+\end{enumerate}
+
+\todo{summarize the algorithm, alternating postitive/negative phase...}
 
 
 \subsection{The recall phase}
+\begin{figure}[h]
+\begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
+SET the value of input units (if there are any) and clamp them
+SET unclamped units to random values
+SET epochs value
+CALL UPDATE(epochs)
+RETURN visible units
+
+UPDATE(epochs):
+  FOR 1 to number of epochs:
+    FOR 1 to number of unclamped units:
+      randomly select an unclamped unit i
+      Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
+      #Stochastically decide the resulting state
+      IF (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
+        SET (*$x_i = 1$*)
+      ELSE:
+        SET (*$x_i = 0$*)
+\end{lstlisting}
+\caption{The recall function}
+% http://gorayni.blogspot.com/2014/06/boltzmann-machines.html
+\label{fig:recall-alg}
+\end{figure}
 
 \subsection{Asynchronous vs. synchronous updating}
+\label{subsec:updating-procedures}
+
 
 \subsection{Applications of the Boltzmann machine}
 
