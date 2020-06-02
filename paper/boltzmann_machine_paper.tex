@@ -60,6 +60,26 @@
 \usepackage{tabularx}										% Tables with fixed width but variable rows
 \usepackage{url,xspace,boxedminipage}   % Accurate display of URLs
 
+\usepackage{varioref}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{todo}
+
+\lstset{
+	basicstyle=\ttfamily,
+	frame=single,
+	numbers=left,
+	language=C,
+	breaklines=true,
+	breakatwhitespace=true,
+	postbreak=\hbox{$\hookrightarrow$ },
+	showstringspaces=false,
+	upquote=true,
+	tabsize=4,
+	captionpos=b,
+	morekeywords={int8_t,uint8_t,int16_t,uint16_t,int32_t,uint32_t,int64_t,uint64_t,size_t,ssize_t,off_t,intptr_t,uintptr_t,mode_t}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Configurationen:
 
@@ -195,7 +215,104 @@ The idea of a Boltzmann Machine (BM) is quite old~\cite{Ackley}. Similar to neur
 \section{Boltzmann Machine}
 \label{sec:bm}
 
-Here we will give an introduction to the theoretical concept of a BM. It is based on concepts from physics, especially statistical mechanics, like the Ising model~\cite{Ising}. Idea is to have a stochastic neural network that finds a ``energy minimum'' while a overall ``temperature'' is slowly reduced.
+% Here we will give an introduction to the theoretical concept of a BM. It is based on concepts from physics, especially statistical mechanics, like the Ising model~\cite{Ising}. Idea is to have a stochastic neural network that finds a ``energy minimum'' while a overall ``temperature'' is slowly reduced.
+
+In this chapter we will give a general explanation of the Boltzmann machine. We will go into the structure of the network, some theoretical background,
+how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
+
+The Boltzmann machine is a stochastic recurrent neural network with symmetrical connections.
+It does unsupervised learning and tries to extract key features from the given training data.
+\todo{general concept of the BM, probability distribution over input data}
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=0.2\textheight]{./boltzmann_graph.png}
+	\caption{Representation of a small Boltzmann machine}
+    % https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Boltzmannexamplev1.png/330px-Boltzmannexamplev1.png
+	\label{fig:boltzmann-graph}
+\end{figure}
+
+In figure \cref{fig:boltzmann-graph} we can see the structure of a small Boltzmann machine. It consists of two layers of units which are called the visible and hidden layer.
+All units in the Boltzmann machine are fully connected with symmetrical weights which means that value of the weight from units A to B is identical to
+the weight from units B to A. All units in a Boltzman machine have a binary state of either one or zero, indicating if they are currently activated or not.
+The weights can take any positive or negative real value.\newline
+The Boltzmann machine uses unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
+after learning the free running phase of the machine creates a binary vector of the states of the visible units which can be seen as the output.
+The general idea behind the Boltzmann machine is to feed it with binary input vectors from the training dataset during the learning phase
+in which the network learns the probability distribution of the set input units which will make it able to reproduce patterns of visible units
+that will match the learned probability distribution in its recall phase. A clearer explanation of the learning and recall phases follows in the 
+later sections of this chapter.
+
+
+\subsection{Relation to the Boltzmann distribution}
+\begin{itemize}
+        \item introduce boltzmann distribution and how it is related to the BM
+        \item explain concepts of Energy and temperature
+        \item finding a minimum energy state
+\end{itemize}
+
+\subsection{The learning phase}
+Before we get into the learning algorithm of the Boltzman machine we need to introduce the concept of 'clamped' and 'unclamped' units.
+As mentioned before during the learning phase the visible units are set to the values of the binary input vectors from the training data.
+This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
+algorithm the states of these units will not change and they will influence the computed states for the hidden units.
+
+\begin{figure}[h]
+\begin{lstlisting}[escapeinside={(*}{*)}]
+SET weight matrix W = 0
+SET learning_epochs = <number>
+SET co-occurance_epochs = <number>
+SET temperature T = <number>
+LEARNING():
+  WHILE W continues to change DO:
+    #Positive phase
+    SET the sum co-occurance matrix S = 0
+    FOR EACH training pattern x:
+      SET visible units to x and CLAMP them
+      SET hidden units to random binary states
+      CALL UPDATE(learning_epochs)
+      CALL COLLECT-STATISTICS()
+    SET each (*$P^{+}_{ij}$*) equal to the average of (*$S_{ij}$*) over all training runs and patterns
+
+    #Negative phase (free-running)
+    SET states of all units to random binary values and UNCLAMP them
+    CALL UPDATE(learning_epochs)
+    SET the sum co-occurance matrix S = 0
+    CALL COLLECT-STATISTICS()
+    SET each (*$P^{-}_{ij}$*) equal to the average of (*$S_{ij}$*) over all training runs
+
+    #Update weights
+    Modify each weight (*$W_{ij}$*) by (*$\Delta W_{ij} = k(P^{+}_{ij} - P^{-}_{ij})$*), where k is a small constant
+
+UPDATE(epochs):
+  FOR 1 to number of epochs:
+    FOR 1 to number of unclamped units:
+      randomly select an unclamped unit i
+      Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
+      #Stochastically decide if the units resulting state
+      IF (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
+        SET (*$x_i = 1$*)
+      ELSE:
+        SET (*$x_i = 0$*)
+
+COLLECT-STATISTICS():
+  CALL UPDATE(co-occurance_epochs)
+  #Sum co-occurance of active states
+  FOR EACH pair of connected units:
+    SET (*$S_{ij} = S_{ij} + x_i x_j$*)
+\end{lstlisting}
+\caption{The learning algorithm}
+% http://gorayni.blogspot.com/2014/06/boltzmann-machines.html
+\label{fig:leaning-alg}
+\end{figure}
+
+
+\subsection{The recall phase}
+
+\subsection{Asynchronous vs. synchronous updating}
+
+\subsection{Applications of the Boltzmann machine}
 
 
 \section{Related Work}
