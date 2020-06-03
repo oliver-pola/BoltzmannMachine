@@ -100,6 +100,7 @@ class Boltzmann:
         visible_zeros = np.zeros(self.num_visible_units)
         term_time = 0
         for i in range(iterations):
+            np.random.shuffle(patterns)
             # Positive phase
             pplus = np.zeros(self.num_connections)
 

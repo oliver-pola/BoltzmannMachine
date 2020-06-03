@@ -35,7 +35,7 @@
 \usepackage{amsthm}
 \usepackage{booktabs}                   % Nicer tables
 %\usepackage[font=small,labelfont=bf]{caption} % Numbered captions for figures
-\usepackage{color}                      % Enables defining of colors via \definecolor
+\usepackage{xcolor}                      % Enables defining of colors via \definecolor
 \definecolor{uhhRed}{RGB}{254,0,0}		  % Official Uni Hamburg Red
 \definecolor{uhhGrey}{RGB}{122,122,120} % Official Uni Hamburg Grey
 \usepackage{fancybox}                   % Gleichungen einrahmen
@@ -52,6 +52,7 @@
 %\usepackage{latexsym}                  % Special symbols
 \usepackage{longtable}									% Allow tables over several parges
 \usepackage{listings}                   % Nicer source code listings
+\usepackage{lstautogobble}
 \usepackage{multicol}										% Content of a table over several columns
 \usepackage{multirow}										% Content of a table over several rows
 \usepackage{rotating}										% Alows to rotate text and objects
@@ -66,18 +67,27 @@
 \usepackage{todo}
 
 \lstset{
-	basicstyle=\ttfamily,
 	frame=single,
+	aboveskip=10pt,
+	belowskip=10pt,
+	%basicstyle={\scriptsize\ttfamily},
+	basicstyle=\footnotesize,
 	numbers=left,
-	language=C,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{magenta},
+	commentstyle=\color{gray},
+	stringstyle=\color{teal},
+	emphstyle=\color{blue},
+	language=,
 	breaklines=true,
 	breakatwhitespace=true,
 	postbreak=\hbox{$\hookrightarrow$ },
 	showstringspaces=false,
+	autogobble=true,
 	upquote=true,
 	tabsize=4,
 	captionpos=b,
-	morekeywords={int8_t,uint8_t,int16_t,uint16_t,int32_t,uint32_t,int64_t,uint64_t,size_t,ssize_t,off_t,intptr_t,uintptr_t,mode_t}
+	morekeywords={as,with}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,7 +273,7 @@ This procedure is called 'clamping' the visible units, which means that during t
 algorithm the states of these units will not change and they will influence the computed states for the hidden units.
 
 \begin{figure}[h]
-\begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
+\begin{lstlisting}[escapeinside={(*}{*)}]
 SET learning_epochs, co-occurance_epochs, temperature T
 SET weight matrix W = 0
 LEARNING():
@@ -417,7 +427,7 @@ This approach pretty much prohibits the parallelization of the update procedure 
 of the Boltzmann machine and therefore limits the sizes of the layers if the algorithm is expected to finish in a reasonable time.
 
 \begin{figure}[h]
-\begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
+\begin{lstlisting}[escapeinside={(*}{*)}]
   FOR 1 to number of epochs:
     FOR 1 to number of unclamped units:
       randomly select an unclamped unit i
@@ -482,7 +492,21 @@ To apply the BM on a simple but not too minimalistic problem, we use the MNIST d
 
 \subsection{Recall digit pixels}
 
-From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained to BM on this subset. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels.
+From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output in this case. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution.
+
+Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 100 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image 100 times, we show 10 variations 10 times each, 100 images in total, the result is not that satisfying. One reason might be, if the variations differ too much, but the distribution of the label 3 images shows, that there is not that much variation and the result should have been better.
+
+We also can see that there is not much variation in calling recall more than once and the same output seems to be given each time. \todo{Why is that?}
+
+\begin{figure}[h!]
+	\begin{center}
+	\includegraphics[trim={0cm 0.5cm 0cm 0cm},clip,width=0.8\textwidth]{src/data_distribution_10_images}
+	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_10_images}
+	\includegraphics[trim={0cm 0.5cm 0cm 0cm},clip,width=0.8\textwidth]{src/data_distribution_100_images}
+	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_100_images}
+	\end{center}
+	\caption{Restoring deleted pixels of MNIST digits}\label{fig:test_restore}
+\end{figure}
 
 
 \section{Discussion}

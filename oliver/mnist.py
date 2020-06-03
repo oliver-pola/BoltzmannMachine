@@ -67,7 +67,7 @@ def get_data():
     return images, labels
 
 
-def test_restore345(images, labels, epochs, num_images):
+def test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path):
     # just pick images with label 3, 4, 5
     pick_labels = [3, 4, 5]
     mask = np.zeros(labels.shape, dtype=bool)
@@ -104,16 +104,13 @@ def test_restore345(images, labels, epochs, num_images):
     ax.set_aspect(1.0/ax.get_data_ratio())
     plt.xlabel('label histogram')
     plt.tight_layout()
+    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
     # consider whole image as input, no output
     out_len = 0
     hidden_layers = length # equal amount as visible layers
-    annealing = [(1., 1000)]
-    coocurance = (annealing[-1][0], 10)
-    synchron_update = True
-    noise_probability = 0.5
     b = Boltzmann(length, hidden_layers, out_len,
-        annealing, coocurance, synchron_update=True)
+        annealing, coocurance, synchron_update=synchron_update)
     # learning
     b.learn(img123, epochs, noise_probability=noise_probability)
     print('learning finished')
@@ -162,16 +159,31 @@ def test_restore345(images, labels, epochs, num_images):
     plt.yticks([])
     plt.xlabel('mean of 20 restores')
     plt.tight_layout()
+    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
 
 def mnist_test():
     images, labels = get_data()
     # plt.imshow(images[0,:,:], cmap='gray')
 
+    plt.rcParams.update({'font.size': 11})
+    plt_savefig_path = '../data/mnist_restore/'
+    os.makedirs(plt_savefig_path, exist_ok=True)
+
     # run tests
-    epochs = 3
-    num_images = 3
-    test_restore345(images, labels, epochs, num_images)
+    epochs = 100
+    num_images = 10
+    annealing = [(10., 100)]
+    coocurance = (annealing[-1][0], 10)
+    synchron_update = True
+    noise_probability = 0.8
+
+    test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
+
+    epochs = 10
+    num_images = 100
+
+    test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
 
     plt.show()
 
