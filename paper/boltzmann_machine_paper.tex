@@ -391,7 +391,7 @@ is questionable if the Boltzmann machine would be a good choice for this since t
 networks and algorithmns which solve these problems more efficiently.\newline
 
 After describing the different possible use cases for the recall procedure we will now take a short look at 
-the algorithm shown in figure \cref{fig:recall-alg}. The algorithm itself is not much different from the 
+the recall algorithm. The algorithm itself is not much different from the 
 procedures we have already seen in the learning section. The basic idea is to just run the update function
 for a given number of epochs in a free-running phase and to then return the resulting states of the
 visible layer as outputs. Depending on which of the approaches described above is being used the only
@@ -399,15 +399,25 @@ difference is to decide which visible units should be clamped and to initialize 
 All unclamped units are initialized with random binary values and the update procedure is called 
 and returns the whole visible layer as output at some point.
 
+
+\subsection{Asynchronous vs. synchronous updating}
+\label{subsec:updating-procedures}
+
+One of the disadvantadges of the original version of the Boltzmann machine is its computational efficiency.
+Firstly the learning algorithm requires the production of a lot of independent random numbers which can be costly.
+The main concern however is that the original algorithm is not suited very well for parallelization.
+This is a very strong concern since modern hardware relies heavily on the use of parallel code execution to
+achieve good performance. This is true for todays multi-core CPUs as well as for GPU computing.
+If we take a closer look at the previously seen update procedure shown in figure \cref{fig:update-alg}
+we can see in line 4 that inside the loops each update is performed on a single unit in a randomly chosen
+order. This behaviour is actually required to conform to the underlying theoretical proof for the Boltzmann machine's
+algorithm. This stems from the fact that the resulting state of one unit will influence the calculations to
+determine the state of the next chosen unit. This version of the update procedure is called the asynchronous version.
+This approach pretty much prohibits the parallelization of the update procedure and it impacts heavily on the performance
+of the Boltzmann machine and therefore limits the sizes of the layers if the algorithm is expected to finish in a reasonable time.
+
 \begin{figure}[h]
 \begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
-SET the value of input units (if there are any) and clamp them
-SET unclamped units to random values
-SET epochs value
-CALL UPDATE(epochs)
-RETURN visible units
-
-UPDATE(epochs):
   FOR 1 to number of epochs:
     FOR 1 to number of unclamped units:
       randomly select an unclamped unit i
@@ -418,16 +428,20 @@ UPDATE(epochs):
       ELSE:
         SET (*$x_i = 0$*)
 \end{lstlisting}
-\caption{The recall function}
+\caption{The asynchronous update algorithm}
 % http://gorayni.blogspot.com/2014/06/boltzmann-machines.html
-\label{fig:recall-alg}
+\label{fig:update-alg}
 \end{figure}
 
-\subsection{Asynchronous vs. synchronous updating}
-\label{subsec:updating-procedures}
+To solve this performance issue a variation of the update algorithm exists which can be parallelized.
+This version is called the synchronous update procedure. Here the calculations for the state updates are
+all done in one step on all unclamped units. This at least in theory introduces some inaccuracies.
+It is however not clear wether these inaccuracies have a strong impact on the practical use of the
+Boltzmann machine and the use of the synchronous update procedure provides the big advantadge of
+being parallelizable. In the implementation and results parts of this paper we will
+compare both of these update procedures and try to give qualitative metrics to measure
+the impact of using the synchronous update over the asynchronous one.
 
-
-\subsection{Applications of the Boltzmann machine}
 
 
 \section{Related Work}
