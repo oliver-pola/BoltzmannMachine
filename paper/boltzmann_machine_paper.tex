@@ -160,7 +160,7 @@
 	\vspace{3.5cm}
 	\begin{center}
 		\huge \trtitle\\
-		OUTLINE
+		WIP
 	\end{center}
 	\vspace{3.5cm}
 	\begin{center}
@@ -209,13 +209,17 @@ Here will be an abstract.
 \section{Introduction}
 \label{sec:intro}
 
-The idea of a Boltzmann Machine (BM) is quite old~\cite{Ackley}. Similar to neural networks in general, the topic has been asleep for quite a while. Now that we have the necessary computing power, it's time to revive those ideas.
+The idea of a Boltzmann Machine (BM) is from 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.
+
+The theoretical background of the BM is inspired from physics, especially statistical mechanics. The Ising model~\cite{Ising} describes ferromagnetism with an ensemble of atoms arranged in a lattice. These atoms have spins that are described having a state $\sigma_i$ of either +1 or -1. A configuration $\sigma$ assigns a value to each of the states. The total energy of the system can be described by its Hamiltonian $H(\sigma)$ that is based on the configuration and considers interactions between atoms and a possible external magnetic field. The interactions are usually modeled between neighbors on the lattice only. The probability $P(\sigma)$ that the system is in a certain configuration $\sigma$ is described by the Boltzmann distribution
+$$P(\sigma) \propto e^{-\frac{H(\sigma)}{k_BT}}$$
+where $T$ is the temperature and $k_B$ is the Boltzmann constant. To achieve such a distribution by simulation on the lattice, the Metropolis algorithm~\cite{Metropolis} can be used. This randomly chooses lattice points and calculates the energy if the state was flipped. If the new energy is lower, the state is accepted. Otherwise the higher energy state is accepted with probability $p$ based on the energy difference $\Delta E$ and the temperature.
+$$p = e^{-\frac{\Delta E}{k_BT}}.$$
+These states don't have to be atom spins and this principle could be applied to other topics than physics. Also the nodes could be arranged in some other network and not necessarily a lattice. And the energy could be generalized to a more abstract minimization problem. This is the basic idea that the BM tries to apply to neural networks.
 
 
 \section{Boltzmann Machine}
 \label{sec:bm}
-
-% Here we will give an introduction to the theoretical concept of a BM. It is based on concepts from physics, especially statistical mechanics, like the Ising model~\cite{Ising}. Idea is to have a stochastic neural network that finds a ``energy minimum'' while a overall ``temperature'' is slowly reduced.
 
 In this chapter we will give a general explanation of the Boltzmann machine. We will go into the structure of the network, some theoretical background,
 how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
