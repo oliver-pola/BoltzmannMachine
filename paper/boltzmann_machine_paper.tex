@@ -420,7 +420,12 @@ So far a BM was only applied to discrete data.
 \section{Results}
 \label{sec:results}
 
-We will try to find a suitable problem set, where we can apply our implementation and can compare it to other, more standard, solutions. Also, if applicable, we compare different variants / implementations of our BM.
+%We will try to find a suitable problem set, where we can apply our implementation and can compare it to other, more standard, solutions. Also, if applicable, we compare different variants / implementations of our BM.
+To apply the BM on a simple but not too minimalistic problem, we use the MNIST dataset\footnote{\url{http://yann.lecun.com/exdb/mnist/}}~\cite{MNIST} containing $60000$ images of handwritten digits with labels. Each image is $28 \times 28$ pixels with grayscale values. Scaling the values to $[0,1]$ would be a good example for using the pixel values as continuous state data. But so far the BM is made for binary states and we applied the midrange threshold to get $\{0, 1\}$ pixel states.
+
+\subsection{Recall digit pixels}
+
+From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained to BM on this subset. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels.
 
 
 \section{Discussion}
