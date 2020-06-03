@@ -356,6 +356,49 @@ To best explain the algorithm we are going to divide it into four logical parts.
 
 
 \subsection{The recall phase}
+What we will call the recall phase in this paper describes using the previously trained Boltzmann machine to create output patterns.
+As we have already discussed the Boltzmann machine only consists of one visible and one hidden layer and does not have a clear output
+layer like many other commonly used neural networks. Therefore the so called outputs of the machine are considered as the patterns
+in the visible layer which are created when a free-running phase is started on the trained network.
+There are multiple ways in which one can use this recall to produce meaningful results. The simplest one is to just let the
+machine run a few epochs in a free-running phase with all units being unclamped. In this configuration the basic idea behind the
+Boltzmann machine comes through and the different resulting patterns in the visible layer and their probability of occurance should
+resemble the probability distribution of the learned input data. For example if the network is trained with a dataset
+that contains one specific patter 5 times and another pattern only once the probability of the recall to produce the first
+pattern should be 5 times as high as the probability of producing the second pattern. Due to the stochastic nature of the Boltzmann
+machine it is of course more likely that the resulting patterns from the recall might not exactly match one of the two inputs
+but only closely resembles them. This behaviour of course gets more common as the size of the input data increases.
+With this use case we can already see how the Boltzmann machine could be used to extract key features from input datasets.
+The results might not reproduce one distinct input but they should with high probability create an output that strongly
+features commonalities between the different inputs.\newline
+A different approach of using the recall phase is to not start a completly free-running phase but to also add some incomplete
+input data to the visible layer. This can be achieved by setting the states of some visible units to fixed values and then 
+clamping those units before executing the update procedure. A simple example for this is the reconstruction of images
+with broken or missing pixels. A Boltzmann machine is first trained with a set of images and in the recall phase
+is given a partial input image. Some of the visible units are initialized with the data from the partial image and clamped.
+The rest of the visible layer and the whole hidden layer are left unclamped and the update procedure is started.
+After running for a few epochs the resulting states of the visible layer are taken as the outputs and they should
+resemble a reconstructed version of the whole image with good probability.\newline
+One last version of using the recall phase is to create an artificial output layer for the network by dividing the visible layer
+into two distinct parts at the creation of the network. This has for example been done in the original paper on the Boltzmann
+machine \ref{} \todo{cite paper}. Here the task was to solve a simple pattern matching problem called 'the encoder problem'.
+Without going into too much detail the idea was that there are input patterns of $n$ bits that match to specific output
+patterns of also $n$ bits. To learn this problem the general Boltzmann machine has to be slightly modified.
+At creation the visible layer is divided into two $n$ unit layers which will not be interconnected but only have 
+connections inside themselfs and to the hidden layer. The input layer so to speak communicates with the output layer
+through the hidden layer. This approach could probably also be used to solve classification problems but it
+is questionable if the Boltzmann machine would be a good choice for this since there exist a lot of other 
+networks and algorithmns which solve these problems more efficiently.\newline
+
+After describing the different possible use cases for the recall procedure we will now take a short look at 
+the algorithm shown in figure \cref{fig:recall-alg}. The algorithm itself is not much different from the 
+procedures we have already seen in the learning section. The basic idea is to just run the update function
+for a given number of epochs in a free-running phase and to then return the resulting states of the
+visible layer as outputs. Depending on which of the approaches described above is being used the only
+difference is to decide which visible units should be clamped and to initialize them. 
+All unclamped units are initialized with random binary values and the update procedure is called 
+and returns the whole visible layer as output at some point.
+
 \begin{figure}[h]
 \begin{lstlisting}[escapeinside={(*}{*)},basicstyle=\footnotesize]
 SET the value of input units (if there are any) and clamp them
