@@ -209,7 +209,7 @@ Here will be an abstract.
 \section{Introduction}
 \label{sec:intro}
 
-The idea of a Boltzmann Machine (BM) is from 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.
+The idea of a Boltzmann Machine (BM) is from Ackley, Hinton and Sejnowski, 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.
 
 The theoretical background of the BM is inspired from physics, especially statistical mechanics. The Ising model~\cite{Ising} describes ferromagnetism with an ensemble of atoms arranged in a lattice. These atoms have spins that are described having a state $\sigma_i$ of either +1 or -1. A configuration $\sigma$ assigns a value to each of the states. The total energy of the system can be described by its Hamiltonian $H(\sigma)$ that is based on the configuration and considers interactions between atoms and a possible external magnetic field. The interactions are usually modeled between neighbors on the lattice only. The probability $P(\sigma)$ that the system is in a certain configuration $\sigma$ is described by the Boltzmann distribution
 $$P(\sigma) \propto e^{-\frac{H(\sigma)}{k_BT}}$$
