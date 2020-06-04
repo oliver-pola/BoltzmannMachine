@@ -219,7 +219,7 @@ Here will be an abstract.
 \section{Introduction}
 \label{sec:intro}
 
-The idea of a Boltzmann Machine (BM) is from Ackley, Hinton and Sejnowski, 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.
+The idea of a Boltzmann Machine (BM) is from Ackley, Hinton and Sejnowski, 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.\\
 
 The theoretical background of the BM is inspired from physics, especially statistical mechanics. The Ising model~\cite{Ising} describes ferromagnetism with an ensemble of atoms arranged in a lattice. These atoms have spins that are described having a state $\sigma_i$ of either +1 or -1. A configuration $\sigma$ assigns a value to each of the states. The total energy of the system can be described by its Hamiltonian $H(\sigma)$ that is based on the configuration and considers interactions between atoms and a possible external magnetic field. The interactions are usually modeled between neighbors on the lattice only. The probability $P(\sigma)$ that the system is in a certain configuration $\sigma$ is described by the Boltzmann distribution
 $$P(\sigma) \propto e^{-\frac{H(\sigma)}{k_BT}}$$
@@ -239,29 +239,30 @@ In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Sala
 \section{Boltzmann Machine}
 \label{sec:bm}
 
-In this chapter we will give a general explanation of the Boltzmann machine. We will go into the structure of the network, some theoretical background,
-how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
+In this chapter we will give a general explanation of the BM. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
 
-The Boltzmann machine is a stochastic recurrent neural network with symmetrical connections.
+The BM is a stochastic recurrent neural network with symmetrical connections.
 It does unsupervised learning and tries to extract key features from the given training data.
 \todo{general concept of the BM, probability distribution over input data}
-
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[height=0.2\textheight]{src/boltzmann_graph}
-	\caption{Representation of a small Boltzmann machine}
+	\caption[Representation of a small Boltzmann machine]{Representation of a small Boltzmann machine\footnotemark}
     % https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Boltzmannexamplev1.png/330px-Boltzmannexamplev1.png
 	\label{fig:boltzmann-graph}
 \end{figure}
+\footnotetext{Image: Sunny vd, \url{https://commons.wikimedia.org/wiki/File:Boltzmannexamplev1.png}}
 
-In figure \cref{fig:boltzmann-graph} we can see the structure of a small Boltzmann machine. It consists of two layers of units which are called the visible and hidden layer.
-All units in the Boltzmann machine are fully connected with symmetrical weights which means that value of the weight from units A to B is identical to
-the weight from units B to A. All units in a Boltzman machine have a binary state of either one or zero, indicating if they are currently activated or not.
-The weights can take any positive or negative real value.\newline
-The Boltzmann machine uses unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
+\noindent
+In \cref{fig:boltzmann-graph} we can see the structure of a small BM. It consists of two layers of units which are called the visible and hidden layer.
+All units in the BM are fully connected with symmetrical weights which means that value of the weight from units A to B is identical to
+the weight from units B to A. All units in a BM have a binary state of either one or zero, indicating if they are currently activated or not.
+The weights can take any positive or negative real value.
+
+The BM uses unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
 after learning the free running phase of the machine creates a binary vector of the states of the visible units which can be seen as the output.
-The general idea behind the Boltzmann machine is to feed it with binary input vectors from the training dataset during the learning phase
+The general idea behind the BM is to feed it with binary input vectors from the training dataset during the learning phase
 in which the network learns the probability distribution of the set input units which will make it able to reproduce patterns of visible units
 that will match the learned probability distribution in its recall phase. A clearer explanation of the learning and recall phases follows in the 
 later sections of this chapter.
@@ -275,7 +276,7 @@ later sections of this chapter.
 \end{itemize}
 
 \subsection{The learning phase}
-Before we get into the learning algorithm of the Boltzman machine we need to introduce the concept of 'clamped' and 'unclamped' units.
+Before we get into the learning algorithm of the BM we need to introduce the concept of 'clamped' and 'unclamped' units.
 As mentioned before during the learning phase the visible units are set to the values of the binary input vectors from the training data.
 This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
 algorithm the states of these units will not change and they will influence the computed states for the hidden units.
@@ -293,17 +294,17 @@ LEARNING():
       SET hidden units to random binary states
       CALL UPDATE(learning_epochs)
       CALL COLLECT-STATISTICS()
-    SET each (*$P^{+}_{ij}$*) equal to the average of (*$S_{ij}$*) over all training runs and patterns
+    SET (*$P^{+}_{ij} =$*) average (*$S_{ij}$*) over all training runs and patterns
 
     #Negative phase (free-running)
     SET states of all units to random binary values and UNCLAMP them
     CALL UPDATE(learning_epochs)
     SET the sum co-occurance matrix S = 0
     CALL COLLECT-STATISTICS()
-    SET each (*$P^{-}_{ij}$*) equal to the average of (*$S_{ij}$*) over all training runs
+    SET (*$P^{-}_{ij} = $*) average (*$S_{ij}$*) over all training runs
 
-    #Update weights
-    Modify each weight (*$W_{ij}$*) by (*$\Delta W_{ij} = k(P^{+}_{ij} - P^{-}_{ij})$*), where k is a small constant
+    #Update weights (*$W_{ij}$*)
+    Add (*$\Delta W_{ij} = k(P^{+}_{ij} - P^{-}_{ij})$*), where k is a small constant
 
 UPDATE(epochs):
   FOR 1 to number of epochs:
@@ -311,7 +312,7 @@ UPDATE(epochs):
       randomly select an unclamped unit i
       Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
       #Stochastically decide the resulting state
-      IF (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
+      IF random uniform (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
         SET (*$x_i = 1$*)
       ELSE:
         SET (*$x_i = 0$*)
@@ -326,7 +327,7 @@ COLLECT-STATISTICS():
 \label{fig:learning-alg}
 \end{figure}
 
-In figure \cref{fig:learning-alg} we can see the basic learning algorithm of the Boltzmann machine in pseudo code form.
+In \cref{fig:learning-alg} we can see the basic learning algorithm of the BM in pseudo code form.
 The code in the figure is a simplified version of the algorithm from Cartas~\cite{BMImpl}.
 To best explain the algorithm we are going to divide it into four logical parts.
 \begin{enumerate}
@@ -351,7 +352,7 @@ To best explain the algorithm we are going to divide it into four logical parts.
         In the update function the stochastic update of the states of the unclamped units takes place. The update calculations are done
         step-by-step for randomly chosen unclamped units. This version of the update procedure is called asynchronous and we will
         compare it to another possible version called the synchronous update, where the updates do not take place in order
-        but are computed all at once in section \cref{subsec:updating-procedures}.\newline
+        but are computed all at once in \cref{subsec:updating-procedures}.\newline
         % The following part probably needs to be way better explained
         For each chosen unit at first its energy difference is calculated with the formula $\Delta E_i = \sum_j W_{ij} x_j$. \todo{explain formula or cite explanation from previous section}
         \todo{explain stochastic activation formula and stuff...}
@@ -368,44 +369,48 @@ To best explain the algorithm we are going to divide it into four logical parts.
 
     \item \textbf{Updating the weights:}\newline
         \todo{explain co-occurance and how the weights are updated}
+        \cite[Chapter~43]{MacKay}\todo{didn't read, just copied reference from Cartas}
 \end{enumerate}
 
 \todo{summarize the algorithm, alternating postitive/negative phase...}
 
 
 \subsection{The recall phase}
-What we will call the recall phase in this paper describes using the previously trained Boltzmann machine to create output patterns.
-As we have already discussed the Boltzmann machine only consists of one visible and one hidden layer and does not have a clear output
+
+What we will call the recall phase in this paper describes using the previously trained BM to create output patterns.
+As we have already discussed the BM only consists of one visible and one hidden layer and does not have a clear output
 layer like many other commonly used neural networks. Therefore the so called outputs of the machine are considered as the patterns
 in the visible layer which are created when a free-running phase is started on the trained network.
 There are multiple ways in which one can use this recall to produce meaningful results. The simplest one is to just let the
 machine run a few epochs in a free-running phase with all units being unclamped. In this configuration the basic idea behind the
-Boltzmann machine comes through and the different resulting patterns in the visible layer and their probability of occurance should
+BM comes through and the different resulting patterns in the visible layer and their probability of occurance should
 resemble the probability distribution of the learned input data. For example if the network is trained with a dataset
-that contains one specific patter 5 times and another pattern only once the probability of the recall to produce the first
-pattern should be 5 times as high as the probability of producing the second pattern. Due to the stochastic nature of the Boltzmann
-machine it is of course more likely that the resulting patterns from the recall might not exactly match one of the two inputs
+that contains one specific pattern five times and another pattern only once the probability of the recall to produce the first
+pattern should be five times as high as the probability of producing the second pattern. Due to the stochastic nature of the BM
+it is of course more likely that the resulting patterns from the recall might not exactly match one of the two inputs
 but only closely resembles them. This behaviour of course gets more common as the size of the input data increases.
-With this use case we can already see how the Boltzmann machine could be used to extract key features from input datasets.
+With this use case we can already see how the BM could be used to extract key features from input datasets.
 The results might not reproduce one distinct input but they should with high probability create an output that strongly
-features commonalities between the different inputs.\newline
+features commonalities between the different inputs.
+
 A different approach of using the recall phase is to not start a completly free-running phase but to also add some incomplete
 input data to the visible layer. This can be achieved by setting the states of some visible units to fixed values and then 
 clamping those units before executing the update procedure. A simple example for this is the reconstruction of images
-with broken or missing pixels. A Boltzmann machine is first trained with a set of images and in the recall phase
+with broken or missing pixels. A BM is first trained with a set of images and in the recall phase
 is given a partial input image. Some of the visible units are initialized with the data from the partial image and clamped.
 The rest of the visible layer and the whole hidden layer are left unclamped and the update procedure is started.
 After running for a few epochs the resulting states of the visible layer are taken as the outputs and they should
-resemble a reconstructed version of the whole image with good probability.\newline
+resemble a reconstructed version of the whole image with good probability.
+
 One last version of using the recall phase is to create an artificial output layer for the network by dividing the visible layer
-into two distinct parts at the creation of the network. This has for example been done in the original paper on the Boltzmann
-machine \ref{} \todo{cite paper}. Here the task was to solve a simple pattern matching problem called 'the encoder problem'.
+into two distinct parts at the creation of the network. This has for example been done in the original paper on the BM~\cite{Ackley}. 
+Here the task was to solve a simple pattern matching problem called 'the encoder problem'.
 Without going into too much detail the idea was that there are input patterns of $n$ bits that match to specific output
-patterns of also $n$ bits. To learn this problem the general Boltzmann machine has to be slightly modified.
+patterns of also $n$ bits. To learn this problem the general BM has to be slightly modified.
 At creation the visible layer is divided into two $n$ unit layers which will not be interconnected but only have 
 connections inside themselfs and to the hidden layer. The input layer so to speak communicates with the output layer
 through the hidden layer. This approach could probably also be used to solve classification problems but it
-is questionable if the Boltzmann machine would be a good choice for this since there exist a lot of other 
+is questionable if the BM would be a good choice for this since there exist a lot of other 
 networks and algorithmns which solve these problems more efficiently.\newline
 
 After describing the different possible use cases for the recall procedure we will now take a short look at 
@@ -421,18 +426,18 @@ and returns the whole visible layer as output at some point.
 \subsection{Asynchronous vs. synchronous updating}
 \label{subsec:updating-procedures}
 
-One of the disadvantadges of the original version of the Boltzmann machine is its computational efficiency.
+One of the disadvantadges of the original version of the BM is its computational efficiency.
 Firstly the learning algorithm requires the production of a lot of independent random numbers which can be costly.
 The main concern however is that the original algorithm is not suited very well for parallelization.
 This is a very strong concern since modern hardware relies heavily on the use of parallel code execution to
 achieve good performance. This is true for todays multi-core CPUs as well as for GPU computing.
-If we take a closer look at the previously seen update procedure shown in figure \cref{fig:update-alg}
+If we take a closer look at the previously seen update procedure shown in \cref{fig:update-alg}
 we can see in line 4 that inside the loops each update is performed on a single unit in a randomly chosen
-order. This behaviour is actually required to conform to the underlying theoretical proof for the Boltzmann machine's
+order. This behaviour is actually required to conform to the underlying theoretical proof for the BM's
 algorithm. This stems from the fact that the resulting state of one unit will influence the calculations to
 determine the state of the next chosen unit. This version of the update procedure is called the asynchronous version.
 This approach pretty much prohibits the parallelization of the update procedure and it impacts heavily on the performance
-of the Boltzmann machine and therefore limits the sizes of the layers if the algorithm is expected to finish in a reasonable time.
+of the BM and therefore limits the sizes of the layers if the algorithm is expected to finish in a reasonable time.
 
 \begin{figure}[h]
 \begin{lstlisting}[escapeinside={(*}{*)}]
@@ -441,7 +446,7 @@ of the Boltzmann machine and therefore limits the sizes of the layers if the alg
       randomly select an unclamped unit i
       Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
       #Stochastically decide the resulting state
-      IF (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
+      IF random uniform (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
         SET (*$x_i = 1$*)
       ELSE:
         SET (*$x_i = 0$*)
@@ -455,7 +460,7 @@ To solve this performance issue a variation of the update algorithm exists which
 This version is called the synchronous update procedure. Here the calculations for the state updates are
 all done in one step on all unclamped units. This at least in theory introduces some inaccuracies.
 It is however not clear wether these inaccuracies have a strong impact on the practical use of the
-Boltzmann machine and the use of the synchronous update procedure provides the big advantadge of
+BM and the use of the synchronous update procedure provides the big advantadge of
 being parallelizable. In the implementation and results parts of this paper we will
 compare both of these update procedures and try to give qualitative metrics to measure
 the impact of using the synchronous update over the asynchronous one.
