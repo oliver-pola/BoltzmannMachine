@@ -474,7 +474,7 @@ Based on the Python implementation from Cartas~\cite{BMImpl}, we generalized to 
 
 The idea was to bring the BM to the current world of neural networks, that offers frameworks like TensorFlow\footnote{\url{https://www.tensorflow.org}} or PyTorch\footnote{\url{https://pytorch.org}}. But the BM is a stochastic neural network, uses its own energy-based minimization process and does not use activation functions or backpropagation. The BM would not utilize any of the builtin tools these frameworks offer, and thus is hard to integrate. 
 
-Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the rest could not be completed within the time frame of this seminar.
+Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.
 
 
 \section{Variants}
@@ -504,7 +504,7 @@ To apply the BM on a simple but not too minimalistic problem, we use the MNIST d
 
 From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output in this case. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution.
 
-Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 100 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image 100 times, we show 10 variations 10 times each, 100 images in total, the result is not that satisfying. One reason might be, if the variations differ too much, but the distribution of the label 3 images shows, that there is not that much variation and the result should have been better.
+Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 100 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image 100 times, we show 10 variations 10 times each, 100 images in total, the result is not that satisfying. One reason might be, if the variations differ too much, but the distribution of the label~3 images shows, that there is not that much variation and the result should have been better.
 
 We also can see that there is not much variation in calling recall more than once and the same output seems to be given each time. \todo{Why is that?}
 
