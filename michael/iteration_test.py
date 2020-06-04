@@ -7,7 +7,7 @@ def iteration_test():
     images, labels = get_data()
     mask = (labels == 3)
     input_images = images[mask][:10,:,:]
-    annealing_sched = [(20.,2),(15.,2),(12.,2),(10.,4)]
+    annealing_sched = [(10.,10)]
     coocurance_cyc = (10.,4)
     hidden_units = 60
     out_dir = "./iterations"

@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 import time
+import os
 
 
 class Boltzmann:
@@ -100,13 +101,14 @@ class Boltzmann:
         visible_zeros = np.zeros(self.num_visible_units)
         term_time = 0
         for i in range(iterations):
+            np.random.shuffle(patterns)
             # Positive phase
             pplus = np.zeros(self.num_connections)
 
             for p in range(num_patterns):
                 if time.time() > term_time + 1 or p == num_patterns - 1:
                     term_time = time.time()
-                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns}          \r')
+                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns} clamped         \r')
                     sys.stdout.flush()
 
                 # Setting visible units values
@@ -121,11 +123,14 @@ class Boltzmann:
             pplus/= trials
 
             # Negative phase
+            sys.stdout.write(f'epoch {i+1}/{iterations}, free running                        \r')
+            sys.stdout.flush()
             self.states = np.random.choice([0,1], self.num_units)
             self.anneal(self.annealing_schedule, visible_zeros)
             pminus = self.sum_coocurrance(visible_zeros) / self.coocurrance_cycle.epochs
 
             self.update_weights(pplus, pminus)
+        sys.stdout.write(f'\n')
 
 
     def recall(self, pattern, clamp_mask, output_mask=[]):
@@ -184,7 +189,7 @@ class Boltzmann:
             p = 1. / (1. + np.exp(-self.energy[unclamped_idxs] / temperature))
             self.states[unclamped_idxs] = np.random.uniform(size=unclamped_idxs.shape[0]) <= p
         else:
-            choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0])
+            choices = np.random.choice(unclamped_idxs, size=unclamped_idxs.shape[0], replace=False)
             for i in range(unclamped_idxs.shape[0]):
                 # Calculating the energy of a randomly selected unit
                 unit = choices[i]
@@ -224,6 +229,60 @@ class Boltzmann:
         anti_triu = (triu[1], triu[0])
         self.weights[anti_triu] = self.weights[triu]
 
+    
+    def save(self, save_dir="."):
+        os.makedirs(save_dir, exist_ok=True)
+
+        params_file = save_dir + "/boltzmann_save_params"
+        with open(params_file, "w") as file:
+            file.write(str(self.num_visible_units) + "\n")
+            file.write(str(self.num_hidden_units) + "\n")
+            file.write(str(self.num_output_units) + "\n")
+            for step in self.annealing_schedule:
+                file.write(str(step.temperature) + "/" + str(step.epochs) +str(","))
+            file.write("\n")
+            file.write(str(self.coocurrance_cycle.temperature) + "/" + \
+                    str(self.coocurrance_cycle.epochs) + "\n")
+            file.write(str(self.synchron_update) + "\n")
+        file.close()
+
+        weights_file = save_dir + "/boltzmann_save_weights"
+        np.savetxt(weights_file, self.weights)
+
+
+def load_boltzmann(load_dir):
+    bm = None
+
+    params_file = load_dir + "/boltzmann_save_params"
+    with open(params_file, "r") as file:
+        lines = file.readlines()
+        
+        visible = int(lines[0].replace("\n", ""))
+        hidden = int(lines[1].replace("\n", ""))
+        output = int(lines[2].replace("\n", ""))
+
+        annealing_schedule = []
+        annealing_list = lines[3].split(",")
+        for step in annealing_list:
+            if(step != "\n"):
+                split = step.split("/")
+                temp = float(split[0])
+                epochs = int(split[1])
+                annealing_schedule.append((temp,epochs))
+        
+        cooc_list = lines[4].replace("\n", "").split("/")
+        temp = float(cooc_list[0])
+        epochs = int(cooc_list[1])
+        coocurrance_cycle = (temp, epochs)
+        sync_update = lines[5].replace("\n", "") == "True"
+
+        bm = Boltzmann(visible,hidden,output,annealing_schedule,coocurrance_cycle,sync_update)
+    file.close()
+
+    weights_file = load_dir + "/boltzmann_save_weights"
+    bm.weights = np.loadtxt(weights_file, dtype=bm.weights.dtype)
+
+    return bm
 
 def Boltzmann_test():
     patterns = [[1, 0, 0, 0, 1, 0, 0, 0],

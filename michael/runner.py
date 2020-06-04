@@ -36,3 +36,4 @@ def recall_image(images, annealing_sched, coocurance_cyc, hidden_units, iteratio
     axarr[2].imshow(result_im, cmap='gray')
 
     plt.savefig(path)
+    bm.save(out_dir)
