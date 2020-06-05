@@ -162,6 +162,67 @@ def test_restore345(images, labels, epochs, num_images, annealing, coocurance, s
     plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
 
+def test_restore345_quality(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path):
+    # redundant code, without plots, just return some quality measure
+
+    # just pick images with label 3, 4, 5
+    pick_labels = [3, 4, 5]
+    mask = np.zeros(labels.shape, dtype=bool)
+    for pick_label in pick_labels:
+        mask = mask | (labels == pick_label)
+    img123 = images[mask, :, :]
+    lbl123 = labels[mask]
+    # reduce number of images
+    if num_images < img123.shape[0]:
+        img123 = img123[:num_images, :, :]
+        lbl123 = lbl123[:num_images]
+    # reshape 28 x 28 image to vector of length 784
+    count = img123.shape[0]
+    length = img123.shape[1] * img123.shape[2]
+    img123 = img123.reshape(count, length)
+
+    # consider whole image as input, no output
+    out_len = 0
+    hidden_layers = length # equal amount as visible layers
+    b = Boltzmann(length, hidden_layers, out_len,
+        annealing, coocurance, synchron_update=synchron_update)
+    # learning
+    b.learn(img123, epochs, noise_probability=noise_probability)
+    print('learning finished')
+
+    # pick a sample 3
+    sample = images[labels == 3][0]
+    blind_iter = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
+    weights_iter = coocurance[1]
+    # destroy lower half just for visualization
+    original = sample[images.shape[1] // 2:, :].reshape(length // 2)
+    # reduce to the remaining half and flatten
+    destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
+    # recall from Boltzmann
+    print('restore by recall...')
+    clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
+    output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
+    # try multiple restores and take average
+    restores = [b.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
+    restore = np.mean(np.array(restores, dtype=np.float), axis=0)
+    # some measure about the quality of the restore
+    good_pixels = np.sum(restore[original == 1])
+    bad_pixels = np.sum(restore[original == 0])
+    print(f'good_pixels = {good_pixels}, bad_pixels = {bad_pixels}')
+    quality = good_pixels - bad_pixels
+    return hidden_layers, quality
+
+
+def plt_quality(title, xlabel, x, quality, plt_savefig_path):
+    plt.figure(title.replace(',', ''), figsize=(12, 4))
+    plt.plot(x, quality)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel('quality')
+    plt.tight_layout()
+    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
+
+
 def mnist_test():
     images, labels = get_data()
     # plt.imshow(images[0,:,:], cmap='gray')
@@ -170,19 +231,49 @@ def mnist_test():
     plt_savefig_path = '../data/mnist_restore/'
     os.makedirs(plt_savefig_path, exist_ok=True)
 
-    # run tests
+    # run few images test
     epochs = 100
     num_images = 10
     annealing = [(10., 100)]
     coocurance = (annealing[-1][0], 10)
     synchron_update = True
     noise_probability = 0.8
-
     test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
 
-    epochs = 10
-    num_images = 100
+    # variate number of epochs on few images
+    quality = []
+    epochslist = np.arange(5, 151, 5)
+    for epochs in epochslist:
+        print(f'epochs = {epochs}')
+        hidden_layers, q = test_restore345_quality(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
+        quality.append(q)
+    blind_iter = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
+    weights_iter = coocurance[1]
+    sync_text = 'synchron' if synchron_update else 'asynchron'
+    title = f'test restore quality, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {blind_iter} blind iter, {weights_iter} weights update iter, T={annealing[-1][0]:.0f}, {sync_text}'
+    plt_quality(title, 'epochs learned', epochslist, quality, plt_savefig_path)
 
+    # variate temperature on few images
+    epochs = 100
+    quality = []
+    temps = np.arange(2, 21, 2)
+    for T in temps:
+        print(f'T = {T}')
+        annealing = [(float(T), 100)]
+        coocurance = (annealing[-1][0], 10)
+        hidden_layers, q = test_restore345_quality(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
+        quality.append(q)
+    blind_iter = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
+    weights_iter = coocurance[1]
+    sync_text = 'synchron' if synchron_update else 'asynchron'
+    title = f'test restore quality, {epochs} epochs, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {blind_iter} blind iter, {weights_iter} weights update iter, {sync_text}'
+    plt_quality(title, 'temperature T', temps, quality, plt_savefig_path)
+
+    # run many images test
+    epochs = 100
+    num_images = 100
+    annealing = [(10., 100)]
+    coocurance = (annealing[-1][0], 2)
     test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
 
     plt.show()

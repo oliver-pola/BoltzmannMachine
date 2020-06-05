@@ -500,6 +500,7 @@ So far a BM was only applied to discrete data.
 
 To apply the BM on a simple but not too minimalistic problem, we use the MNIST dataset\footnote{\url{http://yann.lecun.com/exdb/mnist/}}~\cite{MNIST} containing $60000$ images of handwritten digits with labels. Each image is $28 \times 28$ pixels with grayscale values. Scaling the values to $[0,1]$ would be a good example for using the pixel values as continuous state data. But so far the BM is made for binary states and we applied the midrange threshold to get $\{0, 1\}$ pixel states.
 
+
 \subsection{Recall digit pixels}
 
 From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output in this case. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution.
@@ -517,6 +518,22 @@ We also can see that there is not much variation in calling recall more than onc
 	\end{center}
 	\caption{Restoring deleted pixels of MNIST digits}\label{fig:test_restore}
 \end{figure}
+
+
+\subsection{Meta-parameter dependencies}
+
+Having seen a good result restoring the pattern for 10 images in the previous section, that set of meta-parameters will be used as a base for further analysis. While all other meta-parameters are kept fixed we will vary the amount of training epochs and the temperature. To have a scalar to measure the quality $q$, a simple approach using the pixel values $p_o(x,y)$ from the original and $p_r(x, y)$ from the restored pattern at the same coordinate $x,y$ is applied:
+$$q = \sum_{x, y : p_o(x, y) = 1} \frac1{20}\sum_{\text{20 recalls}}p_r(x, y) - \sum_{x, y : p_o(x, y) = 0} \frac1{20}\sum_{\text{20 recalls}}p_r(x, y)$$
+The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the training epochs.
+\todo{a temperature scan is still running}
+
+\begin{figure}[h!]
+	\begin{center}
+	\includegraphics[trim={0cm 0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_quality_10_images_vary_epochs}
+	\end{center}
+	\caption{Dependency on meta-parameters epoch number and temperature}\label{fig:test_vary_epoch_t}
+\end{figure}
+
 
 
 \section{Discussion}
