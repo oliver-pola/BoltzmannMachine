@@ -95,14 +95,15 @@ def test_restore345(images, labels, epochs, num_images, annealing, coocurance, s
         mean = np.mean(img123[lbl123 == pick_label], axis=0).reshape(images.shape[1], images.shape[2])
         plt.subplot(1, 4, i+1)
         plt.imshow(mean, cmap='gray')
-        if i > 0:
-            plt.yticks([])
-        plt.xlabel(f'mean of label {pick_label}')
+        # if i > 0:
+        plt.yticks([])
+        plt.xticks([0, 27], [' ', ' '])
+        plt.xlabel(f'mean of label {pick_label}', fontsize=16)
     plt.suptitle(title, y=0.88)
     ax = plt.subplot(144)
     ax.hist(lbl123, bins=np.append(pick_labels, np.max(pick_labels) + 1), align='left', rwidth=0.9)
     ax.set_aspect(1.0/ax.get_data_ratio())
-    plt.xlabel('label histogram')
+    plt.xlabel('label histogram', fontsize=16)
     plt.tight_layout()
     plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
@@ -126,14 +127,14 @@ def test_restore345(images, labels, epochs, num_images, annealing, coocurance, s
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
-    plt.xlabel('sample')
+    plt.xlabel('sample', fontsize=16)
     # destroy lower half just for visualization
     sample[images.shape[1] // 2:, :] = 0
     plt.subplot(142)
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
-    plt.xlabel('destroyed')
+    plt.xlabel('destroyed', fontsize=16)
     plt.suptitle(title, y=0.91)
     # reduce to the remaining half and flatten
     destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
@@ -148,7 +149,7 @@ def test_restore345(images, labels, epochs, num_images, annealing, coocurance, s
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
-    plt.xlabel('restored')
+    plt.xlabel('restored', fontsize=16)
     # try multiple restores and take average
     restores = [b.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
     restore = np.mean(np.array(restores, dtype=np.float), axis=0)
@@ -157,7 +158,7 @@ def test_restore345(images, labels, epochs, num_images, annealing, coocurance, s
     plt.imshow(sample, cmap='gray')
     plt.xticks([])
     plt.yticks([])
-    plt.xlabel('mean of 20 restores')
+    plt.xlabel('mean of 20 restores', fontsize=16)
     plt.tight_layout()
     plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
@@ -213,12 +214,14 @@ def test_restore345_quality(images, labels, epochs, num_images, annealing, coocu
     return hidden_layers, quality
 
 
-def plt_quality(title, xlabel, x, quality, plt_savefig_path):
+def plt_quality(title, xlabel, x, quality, plt_savefig_path, xticks=None):
     plt.figure(title.replace(',', ''), figsize=(12, 4))
     plt.plot(x, quality)
     plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel('quality')
+    plt.xlabel(xlabel, fontsize=16)
+    if not xticks is None:
+        plt.xticks(xticks)
+    plt.ylabel('quality q', fontsize=16)
     plt.tight_layout()
     plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
 
@@ -232,9 +235,9 @@ def mnist_test():
     os.makedirs(plt_savefig_path, exist_ok=True)
 
     # run few images test
-    epochs = 100
+    epochs = 70
     num_images = 10
-    annealing = [(10., 100)]
+    annealing = [(8., 100)]
     coocurance = (annealing[-1][0], 10)
     synchron_update = True
     noise_probability = 0.8
@@ -254,9 +257,9 @@ def mnist_test():
     plt_quality(title, 'epochs learned', epochslist, quality, plt_savefig_path)
 
     # variate temperature on few images
-    epochs = 100
+    epochs = 70
     quality = []
-    temps = np.arange(2, 21, 2)
+    temps = [2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 18, 20]
     for T in temps:
         print(f'T = {T}')
         annealing = [(float(T), 100)]
@@ -267,13 +270,13 @@ def mnist_test():
     weights_iter = coocurance[1]
     sync_text = 'synchron' if synchron_update else 'asynchron'
     title = f'test restore quality, {epochs} epochs, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {blind_iter} blind iter, {weights_iter} weights update iter, {sync_text}'
-    plt_quality(title, 'temperature T', temps, quality, plt_savefig_path)
+    plt_quality(title, 'temperature T', temps, quality, plt_savefig_path, xticks=temps)
 
     # run many images test
-    epochs = 100
+    epochs = 7
     num_images = 100
-    annealing = [(10., 100)]
-    coocurance = (annealing[-1][0], 2)
+    annealing = [(8., 100)]
+    coocurance = (annealing[-1][0], 10)
     test_restore345(images, labels, epochs, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
 
     plt.show()

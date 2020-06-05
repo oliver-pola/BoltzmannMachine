@@ -522,15 +522,17 @@ To apply the BM on a simple but not too minimalistic problem, we use the MNIST d
 
 From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output in this case. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution.
 
-Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 100 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image 100 times, we show 10 variations 10 times each, 100 images in total, the result is not that satisfying. One reason might be, if the variations differ too much, but the distribution of the label~3 images shows, that there is not that much variation and the result should have been better.
+Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 70 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image many times, we show some more variations of each digit, 100 images in total, the result is not that satisfying. One reason might be if the variations differ too much, but the mean over the shown label~3 images shows, that there is not that much variation and the result should have been better.
 
 We also can see that there is not much variation in calling recall more than once and the same output seems to be given each time. \todo{Why is that?}
 
 \begin{figure}[h!]
 	\begin{center}
-	\includegraphics[trim={0cm 0.5cm 0cm 0cm},clip,width=0.8\textwidth]{src/data_distribution_10_images}
-	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_10_images}
-	\includegraphics[trim={0cm 0.5cm 0cm 0cm},clip,width=0.8\textwidth]{src/data_distribution_100_images}
+	10 images learned
+	\includegraphics[trim={0.2cm 0.5cm 0cm 1.7cm},clip,width=0.79\textwidth]{src/data_distribution_10_images}
+	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_10_images}\\
+	100 images learned
+	\includegraphics[trim={0.2cm 0.5cm 0cm 1.7cm},clip,width=0.79\textwidth]{src/data_distribution_100_images}
 	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_100_images}
 	\end{center}
 	\caption{Restoring deleted pixels of MNIST digits}\label{fig:test_restore}
@@ -544,11 +546,12 @@ $$q = \sum_{x, y : p_o(x, y) = 1} \frac1{20}\sum_{\text{20 recalls}}p_r(x, y) - 
 The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the training epochs.
 
 About temperature $T$ (abstract, no units) is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$. The two peaks seen in \cref{fig:test_vary_epoch_t} are not expected and without explanation. The peak at higher $T$ is considered to be of more random nature and we preferred the peak at $T=8$ for our experiment.
+\todo{whatever is seen in the T scan varies a lot}
 
 \begin{figure}[h!]
 	\begin{center}
 	\includegraphics[trim={0cm 0cm 0cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_epochs}
-	\includegraphics[trim={0cm 0cm 0cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_temperature}
+	\includegraphics[trim={0.4cm 0cm 0.8cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_temperature}
 	\end{center}
 	\caption{Dependency on meta-parameters epoch number and temperature}\label{fig:test_vary_epoch_t}
 \end{figure}
