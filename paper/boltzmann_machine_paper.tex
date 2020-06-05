@@ -356,9 +356,22 @@ To best explain the algorithm we are going to divide it into four logical parts.
         step-by-step for randomly chosen unclamped units. This version of the update procedure is called asynchronous and we will
         compare it to another possible version called the synchronous update, where the updates do not take place in order
         but are computed all at once in \cref{subsec:updating-procedures}.\newline
-        % The following part probably needs to be way better explained
-        For each chosen unit at first its energy difference is calculated with the formula $\Delta E_i = \sum_j W_{ij} x_j$. \todo{explain formula or cite explanation from previous section}
-        \todo{explain stochastic activation formula and stuff...}
+        \todo{general explanation, do it earlier? does not explicitly belong inside positive phase}
+        For each chosen unit at first its energy difference is calculated with the formula
+        $$\Delta E_i = \sum_j W_{ij} x_j.$$
+        This is similar to other networks and lets the weights $W_{ij}$ and state $x_j$ of other units $j$ influence the current unit $i$. 
+        Based on the energy difference $\Delta E_i$ then the probability $p_i$ is calculated, that the state of unit $i$ is $1$ afterwards.
+        $$p_i = \frac{1}{1+e^{-\Delta E_i / T}}.$$
+        The probability can then be evaluated, checking a random uniform number $u$ in range $[0, 1]$ against $p_i$.
+        If $u \leq p_i$, then set $x_i = 1$, otherwise set to $0$.\newline
+        Having a large weight between units $i$ and $j$ would cause a higher energy difference if unit $j$ is already set to state $1$.
+        This would lead to a higher probability for unit $i$ to become $1$ as well. This should enable to memorize, that both units have often be seen together
+        in state $1$. A negative weight would cause the opposite effect and enables to express both units have rarely be seen together in state $1$.
+        Of course a state of $0$ would also influence the sum and a missing term can increase or decrease the energy difference and thus the probability in 
+        a similar manner.\newline
+        Also notice, that for a very high temperature $T$, the probability $p_i$ becomes~$0.5$, so both states $0$ and $1$ will be equally likely.
+        This means high temperature leads to randomly changing states. That is not good for a final state, but helpful to explore.
+        \todo{explain stochastic activation formula and stuff... was that it?}
         
 
         This whole procedure is repeated for all given input patterns. The last step of the positive phase is the collect statistics function which will be explained in
