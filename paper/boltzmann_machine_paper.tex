@@ -231,6 +231,8 @@ These states don't have to be atom spins and this principle could be applied to 
 \section{Related Work}
 \label{sec:related}
 
+The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas a Hopfield networks is fully connected, this is not the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
+
 Being based on the theoretical background of the original BM paper from Ackley, Hinton and Sejnowski~\cite{Ackley}, we provide an implementation in Python. Our code\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}} is similar to and based on the code by Cartas~\cite{BMImpl}, but we tried to optimize that code, make it more flexible by parameterization and add a new feature, the synchronous update.
 
 In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Salakhutdinov}, Hinton~\cite{Hinton}, Sutskever, Hinton and Taylor~\cite{Sutskever} or Courville, Bergstra and Bengio~\cite{Courville}, we do not deal with the restricted BM (RBM), but with the general case.
@@ -242,7 +244,8 @@ In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Sala
 In this chapter we will give a general explanation of the BM. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
 
 The BM is a stochastic recurrent neural network with symmetrical connections.
-It does unsupervised learning and tries to extract key features from the given training data.
+Rojas~\cite[Chapter~14]{Rojas} provides an introduction to stochastic networks.
+A BM is a network for unsupervised learning and tries to extract key features from the given training data.
 \todo{general concept of the BM, probability distribution over input data}
 
 \begin{figure}[h]
@@ -256,14 +259,14 @@ It does unsupervised learning and tries to extract key features from the given t
 
 \noindent
 In \cref{fig:boltzmann-graph} we can see the structure of a small BM. It consists of two layers of units which are called the visible and hidden layer.
-All units in the BM are fully connected with symmetrical weights which means that value of the weight from units A to B is identical to
+All units in the BM are fully connected with symmetrical weights, which means that value of the weight from units A to B is identical to
 the weight from units B to A. All units in a BM have a binary state of either one or zero, indicating if they are currently activated or not.
 The weights can take any positive or negative real value.
 
 The BM uses unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
 after learning the free running phase of the machine creates a binary vector of the states of the visible units which can be seen as the output.
 The general idea behind the BM is to feed it with binary input vectors from the training dataset during the learning phase
-in which the network learns the probability distribution of the set input units which will make it able to reproduce patterns of visible units
+in which the network learns the probability distribution of the set input units, which will enable it to reproduce patterns of visible units
 that will match the learned probability distribution in its recall phase. A clearer explanation of the learning and recall phases follows in the 
 later sections of this chapter.
 
@@ -335,7 +338,7 @@ To best explain the algorithm we are going to divide it into four logical parts.
         Before the learning algorithm can start we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
         The choice of zero here instead of an initialization with random values as it is often done for other neural networks is
         necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
-        The next thing to do is setting values for the temperature, learning and co-occurance epochs. 
+        The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
         \todo{explain temperature}
         
         The learning and co-occurance epochs parameters will be explained in the description of the following phases.\newline
@@ -383,17 +386,17 @@ layer like many other commonly used neural networks. Therefore the so called out
 in the visible layer which are created when a free-running phase is started on the trained network.
 There are multiple ways in which one can use this recall to produce meaningful results. The simplest one is to just let the
 machine run a few epochs in a free-running phase with all units being unclamped. In this configuration the basic idea behind the
-BM comes through and the different resulting patterns in the visible layer and their probability of occurance should
+BM comes through and the different resulting patterns in the visible layer and their probability of occurrence should
 resemble the probability distribution of the learned input data. For example if the network is trained with a dataset
 that contains one specific pattern five times and another pattern only once the probability of the recall to produce the first
 pattern should be five times as high as the probability of producing the second pattern. Due to the stochastic nature of the BM
 it is of course more likely that the resulting patterns from the recall might not exactly match one of the two inputs
-but only closely resembles them. This behaviour of course gets more common as the size of the input data increases.
+but only closely resembles them. This behavior of course gets more common as the size of the input data increases.
 With this use case we can already see how the BM could be used to extract key features from input datasets.
 The results might not reproduce one distinct input but they should with high probability create an output that strongly
 features commonalities between the different inputs.
 
-A different approach of using the recall phase is to not start a completly free-running phase but to also add some incomplete
+A different approach of using the recall phase is to not start a completely free-running phase but to also add some incomplete
 input data to the visible layer. This can be achieved by setting the states of some visible units to fixed values and then 
 clamping those units before executing the update procedure. A simple example for this is the reconstruction of images
 with broken or missing pixels. A BM is first trained with a set of images and in the recall phase
@@ -408,10 +411,10 @@ Here the task was to solve a simple pattern matching problem called 'the encoder
 Without going into too much detail the idea was that there are input patterns of $n$ bits that match to specific output
 patterns of also $n$ bits. To learn this problem the general BM has to be slightly modified.
 At creation the visible layer is divided into two $n$ unit layers which will not be interconnected but only have 
-connections inside themselfs and to the hidden layer. The input layer so to speak communicates with the output layer
+connections inside themselves and to the hidden layer. The input layer so to speak communicates with the output layer
 through the hidden layer. This approach could probably also be used to solve classification problems but it
 is questionable if the BM would be a good choice for this since there exist a lot of other 
-networks and algorithmns which solve these problems more efficiently.\newline
+networks and algorithms which solve these problems more efficiently.\newline
 
 After describing the different possible use cases for the recall procedure we will now take a short look at 
 the recall algorithm. The algorithm itself is not much different from the 
@@ -426,14 +429,14 @@ and returns the whole visible layer as output at some point.
 \subsection{Asynchronous vs. synchronous updating}
 \label{subsec:updating-procedures}
 
-One of the disadvantadges of the original version of the BM is its computational efficiency.
+One of the disadvantages of the original version of the BM is its computational efficiency.
 Firstly the learning algorithm requires the production of a lot of independent random numbers which can be costly.
 The main concern however is that the original algorithm is not suited very well for parallelization.
 This is a very strong concern since modern hardware relies heavily on the use of parallel code execution to
-achieve good performance. This is true for todays multi-core CPUs as well as for GPU computing.
+achieve good performance. This is true for today's multi-core CPUs as well as for GPU computing.
 If we take a closer look at the previously seen update procedure shown in \cref{fig:update-alg}
 we can see in line 4 that inside the loops each update is performed on a single unit in a randomly chosen
-order. This behaviour is actually required to conform to the underlying theoretical proof for the BM's
+order. This behavior is actually required to conform to the underlying theoretical proof for the BM's
 algorithm. This stems from the fact that the resulting state of one unit will influence the calculations to
 determine the state of the next chosen unit. This version of the update procedure is called the asynchronous version.
 This approach pretty much prohibits the parallelization of the update procedure and it impacts heavily on the performance
@@ -457,10 +460,11 @@ of the BM and therefore limits the sizes of the layers if the algorithm is expec
 \end{figure}
 
 To solve this performance issue a variation of the update algorithm exists which can be parallelized.
-This version is called the synchronous update procedure. Here the calculations for the state updates are
+This version is called the synchronous update procedure, and was already an option for Hopfield networks~\cite[Chapter~43]{MacKay}.
+Here the calculations for the state updates are
 all done in one step on all unclamped units. This at least in theory introduces some inaccuracies.
-It is however not clear wether these inaccuracies have a strong impact on the practical use of the
-BM and the use of the synchronous update procedure provides the big advantadge of
+It is however not clear whether these inaccuracies have a strong impact on the practical use of the
+BM and the use of the synchronous update procedure provides the big advantage of
 being parallelizable. In the implementation and results parts of this paper we will
 compare both of these update procedures and try to give qualitative metrics to measure
 the impact of using the synchronous update over the asynchronous one.
