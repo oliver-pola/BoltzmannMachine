@@ -241,7 +241,7 @@ In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Sala
 \section{Boltzmann Machine}
 \label{sec:bm}
 
-In this chapter we will give a general explanation of the BM. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
+In this chapter we will give a general explanation of the BM and is based on~\cite{Ackley} and~\cite[Chapter~43]{MacKay}. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
 
 The BM is a stochastic recurrent neural network with symmetrical connections.
 Rojas~\cite[Chapter~14]{Rojas} provides an introduction to stochastic networks.
@@ -280,9 +280,9 @@ later sections of this chapter.
 
 \subsection{The learning phase}
 Before we get into the learning algorithm of the BM we need to introduce the concept of 'clamped' and 'unclamped' units.
-As mentioned before during the learning phase the visible units are set to the values of the binary input vectors from the training data.
+As mentioned before, during the learning phase the visible units are set to the values of the binary input vectors from the training data.
 This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
-algorithm the states of these units will not change and they will influence the computed states for the hidden units.
+algorithm, the states of these units will not change and they will influence the computed states for the hidden units.
 
 \begin{figure}[h]
 \begin{lstlisting}[escapeinside={(*}{*)}]
@@ -336,7 +336,7 @@ To best explain the algorithm we are going to divide it into four logical parts.
 \begin{enumerate}
     \item \textbf{The setup phase:}\newline
         Before the learning algorithm can start we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
-        The choice of zero here instead of an initialization with random values as it is often done for other neural networks is
+        The choice of zero, instead of an initialization with random values as it is often done for other neural networks, is
         necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
         The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
         \todo{explain temperature}
