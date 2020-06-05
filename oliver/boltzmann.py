@@ -107,7 +107,7 @@ class Boltzmann:
             for p in range(num_patterns):
                 if time.time() > term_time + 1 or p == num_patterns - 1:
                     term_time = time.time()
-                    sys.stdout.write(f'epoch {i+1}/{iterations}, pattern {p+1}/{num_patterns} clamped         \r')
+                    sys.stdout.write(f'iteration {i+1}/{iterations}, pattern {p+1}/{num_patterns} clamped         \r')
                     sys.stdout.flush()
 
                 # Setting visible units values
@@ -122,7 +122,7 @@ class Boltzmann:
             pplus/= trials
 
             # Negative phase
-            sys.stdout.write(f'epoch {i+1}/{iterations}, free running                        \r')
+            sys.stdout.write(f'iteration {i+1}/{iterations}, free running                        \r')
             sys.stdout.flush()
             self.states = np.random.choice([0,1], self.num_units)
             self.anneal(self.annealing_schedule, visible_zeros)

@@ -241,12 +241,11 @@ In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Sala
 \section{Boltzmann Machine}
 \label{sec:bm}
 
-In this chapter we will give a general explanation of the BM and is based on~\cite{Ackley} and~\cite[Chapter~43]{MacKay}. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
+In this chapter we will give a general explanation of the BM based on~\cite{Ackley} and~\cite[Chapter~43]{MacKay}. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
 
 The BM is a stochastic recurrent neural network with symmetrical connections.
 Rojas~\cite[Chapter~14]{Rojas} provides an introduction to stochastic networks.
-A BM is a network for unsupervised learning and tries to extract key features from the given training data.
-\todo{general concept of the BM, probability distribution over input data}
+A BM is used to extract key features from given training data by unsupervised learning.
 
 \begin{figure}[h]
 	\centering
@@ -263,7 +262,7 @@ All units in the BM are fully connected with symmetrical weights, which means th
 the weight from units B to A. All units in a BM have a binary state of either one or zero, indicating if they are currently activated or not.
 The weights can take any positive or negative real value.
 
-The BM uses unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
+The BM is used for unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
 after learning the free running phase of the machine creates a binary vector of the states of the visible units which can be seen as the output.
 The general idea behind the BM is to feed it with binary input vectors from the training dataset during the learning phase
 in which the network learns the probability distribution of the set input units, which will enable it to reproduce patterns of visible units
@@ -279,7 +278,7 @@ later sections of this chapter.
 \end{itemize}
 
 \subsection{The learning phase}
-Before we get into the learning algorithm of the BM we need to introduce the concept of 'clamped' and 'unclamped' units.
+Before we get into the learning algorithm of the BM, we need to introduce the concept of 'clamped' and 'unclamped' units.
 As mentioned before, during the learning phase the visible units are set to the values of the binary input vectors from the training data.
 This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
 algorithm, the states of these units will not change and they will influence the computed states for the hidden units.
@@ -335,7 +334,7 @@ The code in the figure is a simplified version of the algorithm from Cartas~\cit
 To best explain the algorithm we are going to divide it into four logical parts.
 \begin{enumerate}
     \item \textbf{The setup phase:}\newline
-        Before the learning algorithm can start we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
+        Before the learning algorithm can start, we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
         The choice of zero, instead of an initialization with random values as it is often done for other neural networks, is
         necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
         The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
@@ -522,7 +521,10 @@ To apply the BM on a simple but not too minimalistic problem, we use the MNIST d
 
 From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output in this case. To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution.
 
-Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. If only 10 different images are used for training during 70 epochs, the restored digit can be identified very well, although it is not exactly the missing half. If instead of repeating the same image many times, we show some more variations of each digit, 100 images in total, the result is not that satisfying. One reason might be if the variations differ too much, but the mean over the shown label~3 images shows, that there is not that much variation and the result should have been better.
+Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. 
+If only 10 different images are used for training during 100 iterations, the restored digit can be identified very well, although it is not exactly the missing half.
+If instead of repeating the same image many times, we show some more variations of each digit, 100 images in total, the result is not satisfying.
+One reason might be if the variations differ too much, but the mean over the shown label~3 images shows, that there is not that much variation and the result should have been better.
 
 We also can see that there is not much variation in calling recall more than once and the same output seems to be given each time. \todo{Why is that?}
 
@@ -541,11 +543,11 @@ We also can see that there is not much variation in calling recall more than onc
 
 \subsection{Meta-parameter dependencies}
 
-Having seen a good result restoring the pattern for 10 images in the previous section, that set of meta-parameters will be used as a base for further analysis. While all other meta-parameters are kept fixed we will vary the amount of training epochs and the temperature. To have a scalar to measure the quality $q$, a simple approach using the pixel values $p_o(x,y)$ from the original and $p_r(x, y)$ from the restored pattern at the same coordinate $x,y$ is applied:
+Having seen a good result restoring the pattern for 10 images in the previous section, that set of meta-parameters is now used as a base for further analysis. While all other meta-parameters are kept fixed we will vary the amount of iterations and the temperature. To have a scalar to measure the quality $q$, a simple approach using the pixel values $p_o(x,y)$ from the original and $p_r(x, y)$ from the restored pattern at the same coordinate $x,y$ is applied:
 $$q = \sum_{x, y : p_o(x, y) = 1} \frac1{20}\sum_{\text{20 recalls}}p_r(x, y) - \sum_{x, y : p_o(x, y) = 0} \frac1{20}\sum_{\text{20 recalls}}p_r(x, y)$$
-The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the training epochs.
+The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the number of iterations.
 
-About temperature $T$ (abstract, no units) is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$. The two peaks seen in \cref{fig:test_vary_epoch_t} are not expected and without explanation. The peak at higher $T$ is considered to be of more random nature and we preferred the peak at $T=8$ for our experiment.
+About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$. The two peaks seen in \cref{fig:test_vary_epoch_t} are not expected and without explanation. The peak at higher $T$ is considered to be of more random nature and we preferred the peak at $T=8$ for our experiment.
 \todo{whatever is seen in the T scan varies a lot}
 
 \begin{figure}[h!]
@@ -553,7 +555,7 @@ About temperature $T$ (abstract, no units) is known that at $T=0$ the BM is no l
 	\includegraphics[trim={0cm 0cm 0cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_epochs}
 	\includegraphics[trim={0.4cm 0cm 0.8cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_temperature}
 	\end{center}
-	\caption{Dependency on meta-parameters epoch number and temperature}\label{fig:test_vary_epoch_t}
+	\caption{Dependency on meta-parameters iterations and temperature}\label{fig:test_vary_epoch_t}
 \end{figure}
 
 
