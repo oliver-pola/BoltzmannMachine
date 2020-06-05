@@ -231,7 +231,7 @@ These states don't have to be atom spins and this principle could be applied to 
 \section{Related Work}
 \label{sec:related}
 
-The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas a Hopfield networks is fully connected, this is not the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
+The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas a Hopfield networks does not have hidden units, this is the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
 
 Being based on the theoretical background of the original BM paper from Ackley, Hinton and Sejnowski~\cite{Ackley}, we provide an implementation in Python. Our code\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}} is similar to and based on the code by Cartas~\cite{BMImpl}, but we tried to optimize that code, make it more flexible by parameterization and add a new feature, the synchronous update.
 
@@ -341,11 +341,11 @@ To best explain the algorithm we are going to divide it into four logical parts.
         The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
         \todo{explain temperature}
         
-        The learning and co-occurance epochs parameters will be explained in the description of the following phases.\newline
+        The learning and co-occurrence epochs parameters will be explained in the description of the following phases.\newline
         From here on the algorithm can begin. The first thing we can see in line 4 is that the whole learning procedure (the next three steps) is
         supposed to be executed until the values of the weight matrix have converged and no more changes are observed.
         From a theoretical point of view this happens when the equilibrium state has been reached. \todo{explain in more detail or reference previous subsection}
-        In our practitcal implementation the while loop is replaced by a for loop with an iteration counter that can be set before the learning process.
+        In our practical implementation the while loop is replaced by a for loop with an iteration counter that can be set before the learning process.
     \item \textbf{The positive phase:}\newline
         The actual learning algorithm starts with the so called positive phase. In this phase the given input patterns are learned.
         First the units of the visible layer are set to the values of the current input vector and all visible units are clamped.
