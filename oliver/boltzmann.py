@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 import time
+import os
 
 
 class Boltzmann:
@@ -227,6 +228,61 @@ class Boltzmann:
         # cant use np.tril_indices here, would have wrong order
         anti_triu = (triu[1], triu[0])
         self.weights[anti_triu] = self.weights[triu]
+
+
+    def save(self, save_dir="."):
+        os.makedirs(save_dir, exist_ok=True)
+
+        params_file = save_dir + "/boltzmann_save_params"
+        with open(params_file, "w") as file:
+            file.write(str(self.num_visible_units) + "\n")
+            file.write(str(self.num_hidden_units) + "\n")
+            file.write(str(self.num_output_units) + "\n")
+            for step in self.annealing_schedule:
+                file.write(str(step.temperature) + "/" + str(step.epochs) +str(","))
+            file.write("\n")
+            file.write(str(self.coocurrance_cycle.temperature) + "/" + \
+                    str(self.coocurrance_cycle.epochs) + "\n")
+            file.write(str(self.synchron_update) + "\n")
+        file.close()
+
+        weights_file = save_dir + "/boltzmann_save_weights"
+        np.savetxt(weights_file, self.weights)
+
+
+def load_boltzmann(load_dir):
+    bm = None
+
+    params_file = load_dir + "/boltzmann_save_params"
+    with open(params_file, "r") as file:
+        lines = file.readlines()
+        
+        visible = int(lines[0].replace("\n", ""))
+        hidden = int(lines[1].replace("\n", ""))
+        output = int(lines[2].replace("\n", ""))
+
+        annealing_schedule = []
+        annealing_list = lines[3].split(",")
+        for step in annealing_list:
+            if(step != "\n"):
+                split = step.split("/")
+                temp = float(split[0])
+                epochs = int(split[1])
+                annealing_schedule.append((temp,epochs))
+        
+        cooc_list = lines[4].replace("\n", "").split("/")
+        temp = float(cooc_list[0])
+        epochs = int(cooc_list[1])
+        coocurrance_cycle = (temp, epochs)
+        sync_update = lines[5].replace("\n", "") == "True"
+
+        bm = Boltzmann(visible,hidden,output,annealing_schedule,coocurrance_cycle,sync_update)
+    file.close()
+
+    weights_file = load_dir + "/boltzmann_save_weights"
+    bm.weights = np.loadtxt(weights_file, dtype=bm.weights.dtype)
+
+    return bm
 
 
 def Boltzmann_test():
