@@ -297,14 +297,12 @@ LEARNING():
       CALL UPDATE(learning_epochs)
       CALL COLLECT-STATISTICS()
     SET (*$P^{+}_{ij} =$*) average (*$S_{ij}$*) over all training runs and patterns
-
     #Negative phase (free-running)
     SET states of all units to random binary values and UNCLAMP them
     CALL UPDATE(learning_epochs)
     SET the sum co-occurance matrix S = 0
     CALL COLLECT-STATISTICS()
     SET (*$P^{-}_{ij} = $*) average (*$S_{ij}$*) over all training runs
-
     #Update weights (*$W_{ij}$*)
     Add (*$\Delta W_{ij} = k(P^{+}_{ij} - P^{-}_{ij})$*), where k is a small constant
 
@@ -320,7 +318,15 @@ UPDATE(epochs):
         SET (*$x_i = 0$*)
 
 COLLECT-STATISTICS():
-  CALL UPDATE(co-occurance_epochs)
+  FOR 1 to number of co-occurance_epochs:
+    FOR 1 to number of unclamped units:
+      randomly select an unclamped unit i
+      Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
+      #Stochastically decide the resulting state
+      IF random uniform (*$ U[0,1] < \frac{1}{1+ e^{- \Delta E_i / T}} $*):
+        SET (*$x_i = 1$*)
+      ELSE:
+        SET (*$x_i = 0$*)
   FOR EACH pair of connected units:
     SET (*$S_{ij} = S_{ij} + x_i x_j$*)
 \end{lstlisting}
