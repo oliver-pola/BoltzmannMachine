@@ -527,22 +527,22 @@ The idea was to bring the BM to the current world of neural networks, that offer
 Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.
 
 
-\section{Variants}
-\label{sec:variants}
-
-When we have an implementation that can do what code of others can do as well, we will try to contribute some new approaches and maybe enlarge the scope of problems a BM can be used for.
-
-
-\subsection{Time series data}
-\label{sec:variants:subsec:timeseries}
-
-So far a BM was only applied to static data.
-
-
-\subsection{Continuous data}
-\label{sec:variants:subsec:continuous}
-
-So far a BM was only applied to discrete data.
+%\section{Variants}
+%\label{sec:variants}
+%
+%When we have an implementation that can do what code of others can do as well, we will try to contribute some new approaches and maybe enlarge the scope of problems a BM can be used for.
+%
+%
+%\subsection{Time series data}
+%\label{sec:variants:subsec:timeseries}
+%
+%So far a BM was only applied to static data.
+%
+%
+%\subsection{Continuous data}
+%\label{sec:variants:subsec:continuous}
+%
+%So far a BM was only applied to discrete data.
 
 
 \section{Results}
@@ -593,7 +593,6 @@ About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but
 \end{figure}
 
 
-
 \section{Discussion}
 \label{sec:discuss}
 
@@ -604,6 +603,16 @@ The discussion of the results may be included in the results chapter and not be 
 \label{sec:limits}
 
 Since this is an implementation topic, the main limitations derive from our implementation and may be discussed in that chapter. So this might not result in a chapter on it's own. % TODO
+
+
+\section{Future Work}
+\label{sec:future}
+
+(May be covered in the final version of this paper)\\
+
+\noindent
+The BM as it was defined and used in this paper is only applicable to static discrete data. As already mentioned when using the MNIST images, we therefor had to adjust or pixel values in range $[0,255]\cap\mathbb{N}$ to be binary $0$ or $1$ via threshold. It would be nice to directly use values in continuous range $[0,1]$ instead. Where we currently set the new state to $1$ with probability $p$, this could be achieved by directly setting the new state to $p$. The other parts of the algorithm then need to be adapted as well.
+As the BM is a recurrent neural network, a proper application seems to be time series data. This also seems to be where the Restricted BM is applied, that we have chosen not to cover in this paper. But it might to be possible to adapt the general BM to this task as well.
 
 
 \section{Conclusion}
