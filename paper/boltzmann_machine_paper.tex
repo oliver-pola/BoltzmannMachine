@@ -338,12 +338,10 @@ To best explain the algorithm we are going to divide it into four logical parts.
         The choice of zero, instead of an initialization with random values as it is often done for other neural networks, is
         necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
         The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
-        \todo{explain temperature}
-        
         The learning and co-occurrence epochs parameters will be explained in the description of the following phases.\newline
         From here on the algorithm can begin. The first thing we can see in line 4 is that the whole learning procedure (the next three steps) is
         supposed to be executed until the values of the weight matrix have converged and no more changes are observed.
-        From a theoretical point of view this happens when the equilibrium state has been reached. \todo{explain in more detail or reference previous subsection}
+        From a theoretical point of view this happens when the equilibrium state has been reached.
         In our practical implementation the while loop is replaced by a for loop with an iteration counter that can be set before the learning process.
     \item \textbf{The positive phase:}\newline
         The actual learning algorithm starts with the so called positive phase. In this phase the given input patterns are learned.
@@ -380,11 +378,41 @@ To best explain the algorithm we are going to divide it into four logical parts.
     \item \textbf{The free-running phase:}\newline
         After the positive phase the negative or 'free-running' phase starts. This phase is different to the positive phase in the fact that
         now all units of both layers are treated as unclamped. This means that also the visible layers units states can now be updated.
-        \todo{explain what this phase is for}
+        Since no more input patterns are given to the visible layer all units are now initialized with a random binary value and
+        the network is run freely. In this phase the previously learned information, which is stored in the weights 
+        is analyzed by the network and found correlations between for example two connected units often beeing active at the
+        same time are strengthened. The process of finding a more optimal low energy state mainly occures in this phase.\newline
+        The free-running phase is also later used to produce the output patterns of the Boltzmann machine that a user will
+        look at when applying the network on a real problem.
 
     \item \textbf{Updating the weights:}\newline
-        \todo{explain co-occurance and how the weights are updated}
-        \cite[Chapter~43]{MacKay}\todo{didn't read, just copied reference from Cartas}
+        The updating of the weights during the learning phase is done by comparing statistics of so called co-occuring units in the positive
+        and in the negative phase. A co-occurance is the case that two units $i,j$ connected by a weight $w_{ij}$ are both observed in the
+        state $1$. In the pseudo code of the algorithm these co-occurances are summed up in the vector $S_{ij}$, where the field $ij$ is increased
+        by one every time the units $i,j$ have both been observed in the state $1$.
+        Since we are dealing with a stochastic process here it is neccessary to collect these statistics over multiple epochs and to average
+        the results afterwards. This can be seen at the definitions of the $P^+_{ij}$ and $P^-_{ij}$ variables.\newline
+        $P^+_{ij}$ holds the co-occurance statistics for the positive phase and $P^-_{ij}$ holds the statistics for the negative phase.
+        It is important to recognize that the collection of the statistics in the algorithm only starts after a good amount of 
+        update steps have already been done for each phase. This is needed because we can only make meaningful asumptions about 
+        co-occurances after each phase had a little time to already move towards converging on a low energy state.
+        The 'collect-statistics' function then repeats a number of update steps during which all co-occurances are summed up.\newline
+        The actual changing of the weights happens after eacht time the a pair of positive and negative phases has finished.
+        Here the values of $P^+_{ij}$ and $P^-_{ij}$ are compared for every connected pair of units and their weight
+        is increased by a set learning factor $k$ if there where more co-occurances observed in the positive phase over the negative phase
+        or it is decreased if less co-occurances where observed in the positive phase. This process reinforces the learned co-occurance 
+        information from the input patterns. If during the positive phase where the visible layer is clamped to a specific pattern
+        two units often showed a co-occurance that means that this information should be learned and it will therefore
+        be reinforced by changing their weight correspondingly. If however in the free-running phase two units
+        are co-occuring more often than in the positive phase this does not represent the learned data properly and
+        the probability of this co-occurance has to be decreased by a corresponding change of weights.\newline
+        This whole process of collecting the co-occurance statistics and then updating the weights is done for
+        every iteration of the learning algorithm. It should in the end lead to a network that in its free-running
+        phase will produce visible layer patterns that represent the distribution of the learned input patterns
+        as closely as possible.
+
+        \todo{Use this reference?}
+        % \cite[Chapter~43]{MacKay}\todo{didn't read, just copied reference from Cartas}
 \end{enumerate}
 
 \todo{summarize the algorithm, alternating postitive/negative phase...}
