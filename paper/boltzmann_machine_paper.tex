@@ -606,6 +606,7 @@ Since this is an implementation topic, the main limitations derive from our impl
 
 \noindent
 The BM as it was defined and used in this paper is only applicable to static discrete data. As already mentioned when using the MNIST images, we therefor had to adjust or pixel values in range $[0,255]\cap\mathbb{N}$ to be binary $0$ or $1$ via threshold. It would be nice to directly use values in continuous range $[0,1]$ instead. Where we currently set the new state to $1$ with probability $p$, this could be achieved by directly setting the new state to $p$. The other parts of the algorithm then need to be adapted as well.
+
 As the BM is a recurrent neural network, a proper application seems to be time series data. This also seems to be where the Restricted BM is applied, that we have chosen not to cover in this paper. But it might to be possible to adapt the general BM to this task as well.
 
 
