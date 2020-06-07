@@ -270,13 +270,6 @@ that will match the learned probability distribution in its recall phase. A clea
 later sections of this chapter.
 
 
-\subsection{Relation to the Boltzmann distribution}
-\begin{itemize}
-        \item introduce boltzmann distribution and how it is related to the BM
-        \item explain concepts of Energy and temperature
-        \item finding a minimum energy state
-\end{itemize}
-
 \subsection{The learning phase}
 Before we get into the learning algorithm of the BM, we need to introduce the concept of 'clamped' and 'unclamped' units.
 As mentioned before, during the learning phase the visible units are set to the values of the binary input vectors from the training data.
@@ -285,12 +278,12 @@ algorithm, the states of these units will not change and they will influence the
 
 \begin{figure}[h]
 \begin{lstlisting}[escapeinside={(*}{*)}]
-SET learning_epochs, co-occurance_epochs, temperature T
+SET learning_epochs, co-occurrence_epochs, temperature T
 SET weight matrix W = 0
 LEARNING():
   WHILE W continues to change DO:
     #Positive phase
-    SET the sum co-occurance matrix S = 0
+    SET the sum co-occurrence matrix S = 0
     FOR EACH training pattern x:
       SET visible units to x and CLAMP them
       SET hidden units to random binary states
@@ -300,7 +293,7 @@ LEARNING():
     #Negative phase (free-running)
     SET states of all units to random binary values and UNCLAMP them
     CALL UPDATE(learning_epochs)
-    SET the sum co-occurance matrix S = 0
+    SET the sum co-occurrence matrix S = 0
     CALL COLLECT-STATISTICS()
     SET (*$P^{-}_{ij} = $*) average (*$S_{ij}$*) over all training runs
     #Update weights (*$W_{ij}$*)
@@ -318,7 +311,7 @@ UPDATE(epochs):
         SET (*$x_i = 0$*)
 
 COLLECT-STATISTICS():
-  FOR 1 to number of co-occurance_epochs:
+  FOR 1 to number of co-occurrence_epochs:
     FOR 1 to number of unclamped units:
       randomly select an unclamped unit i
       Calculate its energy difference: (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
@@ -386,33 +379,33 @@ To best explain the algorithm we are going to divide it into four logical parts.
         now all units of both layers are treated as unclamped. This means that also the visible layers units states can now be updated.
         Since no more input patterns are given to the visible layer all units are now initialized with a random binary value and
         the network is run freely. In this phase the previously learned information, which is stored in the weights 
-        is analyzed by the network and found correlations between for example two connected units often beeing active at the
-        same time are strengthened. The process of finding a more optimal low energy state mainly occures in this phase.\newline
+        is analyzed by the network and found correlations between for example two connected units often being active at the
+        same time are strengthened. The process of finding a more optimal low energy state mainly occurs in this phase.\newline
         The free-running phase is also later used to produce the output patterns of the Boltzmann machine that a user will
         look at when applying the network on a real problem.
 
     \item \textbf{Updating the weights:}\newline
-        The updating of the weights during the learning phase is done by comparing statistics of so called co-occuring units in the positive
-        and in the negative phase. A co-occurance is the case that two units $i,j$ connected by a weight $w_{ij}$ are both observed in the
-        state $1$. In the pseudo code of the algorithm these co-occurances are summed up in the vector $S_{ij}$, where the field $ij$ is increased
+        The updating of the weights during the learning phase is done by comparing statistics of so called co-occurring units in the positive
+        and in the negative phase. A co-occurrence is the case that two units $i,j$ connected by a weight $w_{ij}$ are both observed in the
+        state $1$. In the pseudo code of the algorithm these co-occurrences are summed up in the vector $S_{ij}$, where the field $ij$ is increased
         by one every time the units $i,j$ have both been observed in the state $1$.
-        Since we are dealing with a stochastic process here it is neccessary to collect these statistics over multiple epochs and to average
+        Since we are dealing with a stochastic process here it is necessary to collect these statistics over multiple epochs and to average
         the results afterwards. This can be seen at the definitions of the $P^+_{ij}$ and $P^-_{ij}$ variables.\newline
-        $P^+_{ij}$ holds the co-occurance statistics for the positive phase and $P^-_{ij}$ holds the statistics for the negative phase.
+        $P^+_{ij}$ holds the co-occurrence statistics for the positive phase and $P^-_{ij}$ holds the statistics for the negative phase.
         It is important to recognize that the collection of the statistics in the algorithm only starts after a good amount of 
-        update steps have already been done for each phase. This is needed because we can only make meaningful asumptions about 
-        co-occurances after each phase had a little time to already move towards converging on a low energy state.
-        The 'collect-statistics' function then repeats a number of update steps during which all co-occurances are summed up.\newline
-        The actual changing of the weights happens after eacht time the a pair of positive and negative phases has finished.
+        update steps have already been done for each phase. This is needed because we can only make meaningful assumptions about 
+        co-occurrences after each phase had a little time to already move towards converging on a low energy state.
+        The 'collect-statistics' function then repeats a number of update steps during which all co-occurrences are summed up.\newline
+        The actual changing of the weights happens after each time the a pair of positive and negative phases has finished.
         Here the values of $P^+_{ij}$ and $P^-_{ij}$ are compared for every connected pair of units and their weight
-        is increased by a set learning factor $k$ if there where more co-occurances observed in the positive phase over the negative phase
-        or it is decreased if less co-occurances where observed in the positive phase. This process reinforces the learned co-occurance 
+        is increased by a set learning factor $k$ if there where more co-occurrences observed in the positive phase over the negative phase
+        or it is decreased if less co-occurrences where observed in the positive phase. This process reinforces the learned co-occurrence 
         information from the input patterns. If during the positive phase where the visible layer is clamped to a specific pattern
-        two units often showed a co-occurance that means that this information should be learned and it will therefore
+        two units often showed a co-occurrence that means that this information should be learned and it will therefore
         be reinforced by changing their weight correspondingly. If however in the free-running phase two units
-        are co-occuring more often than in the positive phase this does not represent the learned data properly and
-        the probability of this co-occurance has to be decreased by a corresponding change of weights.\newline
-        This whole process of collecting the co-occurance statistics and then updating the weights is done for
+        are co-occurring more often than in the positive phase this does not represent the learned data properly and
+        the probability of this co-occurrence has to be decreased by a corresponding change of weights.\newline
+        This whole process of collecting the co-occurrence statistics and then updating the weights is done for
         every iteration of the learning algorithm. It should in the end lead to a network that in its free-running
         phase will produce visible layer patterns that represent the distribution of the learned input patterns
         as closely as possible.
@@ -421,7 +414,7 @@ To best explain the algorithm we are going to divide it into four logical parts.
         % \cite[Chapter~43]{MacKay}\todo{didn't read, just copied reference from Cartas}
 \end{enumerate}
 
-\todo{summarize the algorithm, alternating postitive/negative phase...}
+\todo{summarize the algorithm, alternating positive/negative phase...}
 
 
 \subsection{The recall phase}
