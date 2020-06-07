@@ -396,7 +396,7 @@ To best explain the algorithm we are going to divide it into four logical parts.
         update steps have already been done for each phase. This is needed because we can only make meaningful assumptions about 
         co-occurrences after each phase had a little time to already move towards converging on a low energy state.
         The 'collect-statistics' function then repeats a number of update steps during which all co-occurrences are summed up.\newline
-        The actual changing of the weights happens after each time the a pair of positive and negative phases has finished.
+        The actual changing of the weights happens after each time a pair of positive and negative phases has finished.
         Here the values of $P^+_{ij}$ and $P^-_{ij}$ are compared for every connected pair of units and their weight
         is increased by a set learning factor $k$ if there where more co-occurrences observed in the positive phase over the negative phase
         or it is decreased if less co-occurrences where observed in the positive phase. This process reinforces the learned co-occurrence 
