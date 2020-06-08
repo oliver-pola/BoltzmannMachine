@@ -570,7 +570,7 @@ We also can see that there is not much variation in calling recall more than onc
 
 \subsection{Meta-parameter dependencies}
 
-Having seen a good result restoring the pattern for 10 images in the previous section, that set of meta-parameters is now used as a base for further analysis. While all other meta-parameters are kept fixed we will vary the amount of iterations and the temperature. To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied. This just rewards pixels set in the restored pattern where a pixel was set in the original and punishes restored pixels where no original pixel was set:
+Having seen a good result restoring the pattern for 10 images in the previous section, that set of meta-parameters is now used as a base for further analysis. While all other meta-parameters are kept fixed we will vary the amount of iterations and the temperature. To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied. The left term rewards pixels set in the restored pattern where a pixel was set in the original, and the right, negative, term punishes restored pixels where no original pixel was set:
 $$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
 The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the number of iterations.
 
