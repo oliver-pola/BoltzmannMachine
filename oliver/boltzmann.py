@@ -86,11 +86,12 @@ class Boltzmann:
         self.connections = self.connections + self.connections.T - 1
 
 
-    def learn(self, patterns, iterations, noise_probability=0.8, noise_bias=0.05):
+    def learn(self, patterns, iterations, noise_probability=0.8, noise_bias=0.05, reset=True):
         patterns = np.array(patterns)
         num_patterns = patterns.shape[0]
         trials = self.coocurrance_cycle.epochs * num_patterns
-        self.weights = np.zeros((self.num_units, self.num_units))
+        if reset:
+            self.weights = np.zeros((self.num_units, self.num_units))
 
         if (patterns.shape[1] != self.num_visible_units):
             print("Error: The given learning patterns are of the wrong size")
@@ -256,7 +257,7 @@ def load_boltzmann(load_dir):
     params_file = load_dir + "/boltzmann_save_params"
     with open(params_file, "r") as file:
         lines = file.readlines()
-        
+
         visible = int(lines[0].replace("\n", ""))
         hidden = int(lines[1].replace("\n", ""))
         output = int(lines[2].replace("\n", ""))
@@ -269,7 +270,7 @@ def load_boltzmann(load_dir):
                 temp = float(split[0])
                 epochs = int(split[1])
                 annealing_schedule.append((temp,epochs))
-        
+
         cooc_list = lines[4].replace("\n", "").split("/")
         temp = float(cooc_list[0])
         epochs = int(cooc_list[1])
