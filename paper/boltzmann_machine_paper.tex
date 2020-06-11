@@ -196,9 +196,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Abstract:
-
-% Abstract gives a brief summary of the main points of a paper:
-\section*{Abstract}
+% Abstract gives a brief summary of the main points of a paper: \section*{Abstract}
 
 Here will be an abstract.
 
@@ -276,30 +274,35 @@ As mentioned before, during the learning phase the visible units are set to the 
 This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
 algorithm, the states of these units will not change and they will influence the computed states for the hidden units.
 
-\begin{figure}[b!]
+In \cref{fig:learning-alg} we can see the basic learning algorithm of the BM in pseudo code form.
+The code in the figure is a simplified version of the algorithm from Cartas~\cite{BMImpl}.
+To best explain the algorithm we are going to divide it into four logical parts.
+
+\begin{figure}[p]
 \begin{lstlisting}[escapeinside={(*}{*)}]
+(*\textbf{\#Set up phase}*)
 SET learning_epochs, co-occurrence_epochs, temperature T
 SET weight matrix W = 0
 LEARNING():
   WHILE W continues to change DO:
-    #Positive phase
+    (*\textbf{\#Positive phase}*)
     SET the sum co-occurrence matrix S = 0
     FOR EACH training pattern x:
       SET visible units to x and CLAMP them
       SET hidden units to random binary states
-      CALL UPDATE(learning_epochs)
+      CALL UPDATE-STATES(learning_epochs)
       CALL COLLECT-STATISTICS()
     SET (*$P^{+}_{ij} =$*) average (*$S_{ij}$*) over all training runs and patterns
-    #Negative phase (free-running)
+    (*\textbf{\#Free-running phase (negative phase)}*)
     SET states of all units to random binary values and UNCLAMP them
-    CALL UPDATE(learning_epochs)
+    CALL UPDATE-STATES(learning_epochs)
     SET the sum co-occurrence matrix S = 0
     CALL COLLECT-STATISTICS()
     SET (*$P^{-}_{ij} = $*) average (*$S_{ij}$*) over all training runs
-    #Update weights (*$W_{ij}$*)
+    (*\textbf{\#Update weights }$W_{ij}$*)
     Add (*$\Delta W_{ij} = k(P^{+}_{ij} - P^{-}_{ij})$*), where k is a small constant
 
-UPDATE(epochs):
+UPDATE-STATES(epochs):
   FOR 1 to number of epochs:
     FOR 1 to number of unclamped units:
       randomly select an unclamped unit i
@@ -328,9 +331,6 @@ COLLECT-STATISTICS():
 \label{fig:learning-alg}
 \end{figure}
 
-In \cref{fig:learning-alg} we can see the basic learning algorithm of the BM in pseudo code form.
-The code in the figure is a simplified version of the algorithm from Cartas~\cite{BMImpl}.
-To best explain the algorithm we are going to divide it into four logical parts.
 \begin{enumerate}
     \item \textbf{The setup phase:}\newline
         Before the learning algorithm can start, we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
