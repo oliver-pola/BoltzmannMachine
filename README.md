@@ -16,13 +16,15 @@ January 1985
 ---
 
 ## Setup
-We'll use pipenv as a virtual environment. To set everything up and run somefile.py, start from here where the README.md is and do:
+We'll use pipenv as a virtual environment. To set everything up and run our MNIST restore experiment, start from here where the README.md is and do:
 
 ```
 pip install pipenv
 pipenv sync
 pipenv shell
-python somefile.py
+python mnist_restore_test.py
 ```
+
+This will create a `data` folder with the MNIST dataset in subfolder `mnist` and a subfolder `mnist_restore_test` for the experiment results.
 
 The required Python modules are listed in the provided `Pipfile` and installed via `pipenv install` command. To use the exact versions specified in `Pipfile.lock`, use `pipenv sync`. If you like to skip the virtual environment, you could also install all modules listed in  `Pipfile` via `pip install ...`.
