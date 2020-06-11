@@ -8,8 +8,6 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
-from boltzmann import Boltzmann
-
 
 def read_idx1(path):
     # https://stackoverflow.com/questions/39969045/parsing-yann-lecuns-mnist-idx-file-format
@@ -61,226 +59,30 @@ def get_data():
         print('Unzip MNIST training labels...')
         gunzip(labels_gz, labels_file)
         os.remove(labels_gz)
-    # images = read_idx3(images_file) / 255 # range [0,1]
-    images = (read_idx3(images_file) > 127) * 1. # binary 0 or 1
+    images = read_idx3(images_file) / 255 # range [0,1]
     labels = read_idx1(labels_file)
     return images, labels
 
 
-def test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path):
-    # just pick images with label 3, 4, 5
-    pick_labels = [3, 4, 5]
-    mask = np.zeros(labels.shape, dtype=bool)
-    for pick_label in pick_labels:
-        mask = mask | (labels == pick_label)
-    img123 = images[mask, :, :]
-    lbl123 = labels[mask]
-    # reduce number of images
-    if num_images < img123.shape[0]:
-        img123 = img123[:num_images, :, :]
-        lbl123 = lbl123[:num_images]
-    # reshape 28 x 28 image to vector of length 784
-    print(f'learning images shape = {img123.shape}')
-    count = img123.shape[0]
-    length = img123.shape[1] * img123.shape[2]
-    img123 = img123.reshape(count, length)
-    print(f'learning flattened shape = {img123.shape}')
-
-    # some data statistics: count and mean image (distribution)
-    print(f'mean image pixel sum = {np.mean(np.sum(img123, axis=1))}')
-    print(f'mean pixel value = {np.mean(img123)}')
-    title = f'data distribution for test restore, {count} images'
-    plt.figure(title.replace(',', ''), figsize=(12, 4))
-    for i, pick_label in enumerate(pick_labels):
-        mean = np.mean(img123[lbl123 == pick_label], axis=0).reshape(images.shape[1], images.shape[2])
-        plt.subplot(1, 4, i+1)
-        plt.imshow(mean, cmap='gray')
-        # if i > 0:
-        plt.yticks([])
-        plt.xticks([0, 27], [' ', ' '])
-        plt.xlabel(f'mean of label {pick_label}', fontsize=16)
-    plt.suptitle(title, y=0.88)
-    ax = plt.subplot(144)
-    ax.hist(lbl123, bins=np.append(pick_labels, np.max(pick_labels) + 1), align='left', rwidth=0.9)
-    ax.set_aspect(1.0/ax.get_data_ratio())
-    plt.xlabel('label histogram', fontsize=16)
-    plt.tight_layout()
-    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
-
-    # consider whole image as input, no output
-    out_len = 0
-    hidden_layers = length # equal amount as visible layers
-    b = Boltzmann(length, hidden_layers, out_len,
-        annealing, coocurance, synchron_update=synchron_update)
-    # learning
-    b.learn(img123, iterations, noise_probability=noise_probability)
-    print('learning finished')
-
-    # pick a sample 3
-    sample = images[labels == 3][0]
-    learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
-    sync_text = 'sync' if synchron_update else 'async'
-    title = f'test restore, {iterations} iterations, {count} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
-    plt.figure(title.replace(',', ''), figsize=(12, 4))
-    plt.subplot(141)
-    plt.imshow(sample, cmap='gray')
-    plt.xticks([])
-    plt.yticks([])
-    plt.xlabel('sample', fontsize=16)
-    # destroy lower half just for visualization
-    sample[images.shape[1] // 2:, :] = 0
-    plt.subplot(142)
-    plt.imshow(sample, cmap='gray')
-    plt.xticks([])
-    plt.yticks([])
-    plt.xlabel('destroyed', fontsize=16)
-    plt.suptitle(title, y=0.91)
-    # reduce to the remaining half and flatten
-    destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
-    # recall from Boltzmann
-    print('restore by recall...')
-    clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
-    output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
-    restore = b.recall(destroyed, clamp_mask, output_mask)
-    # fill the lower half of sample
-    sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
-    plt.subplot(143)
-    plt.imshow(sample, cmap='gray')
-    plt.xticks([])
-    plt.yticks([])
-    plt.xlabel('restored', fontsize=16)
-    # try multiple restores and take average
-    restores = [b.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
-    restore = np.mean(np.array(restores, dtype=np.float), axis=0)
-    sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
-    plt.subplot(144)
-    plt.imshow(sample, cmap='gray')
-    plt.xticks([])
-    plt.yticks([])
-    plt.xlabel('mean of 20 restores', fontsize=16)
-    plt.tight_layout()
-    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
+def im2vec(images):
+    if images.ndim == 2:
+        length = images.shape[0] * images.shape[1]
+        return images.reshape(length)
+    elif images.ndim == 3:
+        count = images.shape[0]
+        length = images.shape[1] * images.shape[2]
+        return images.reshape(count, length)
 
 
-def test_restore345_quality(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path):
-    # redundant code, without plots, just return some quality measure
-
-    # just pick images with label 3, 4, 5
-    pick_labels = [3, 4, 5]
-    mask = np.zeros(labels.shape, dtype=bool)
-    for pick_label in pick_labels:
-        mask = mask | (labels == pick_label)
-    img123 = images[mask, :, :]
-    lbl123 = labels[mask]
-    # reduce number of images
-    if num_images < img123.shape[0]:
-        img123 = img123[:num_images, :, :]
-        lbl123 = lbl123[:num_images]
-    # reshape 28 x 28 image to vector of length 784
-    count = img123.shape[0]
-    length = img123.shape[1] * img123.shape[2]
-    img123 = img123.reshape(count, length)
-
-    # consider whole image as input, no output
-    out_len = 0
-    hidden_layers = length # equal amount as visible layers
-    b = Boltzmann(length, hidden_layers, out_len,
-        annealing, coocurance, synchron_update=synchron_update)
-    # learning
-    b.learn(img123, iterations, noise_probability=noise_probability)
-    print('learning finished')
-
-    # pick a sample 3
-    sample = images[labels == 3][0]
-    learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
-    # destroy lower half just for visualization
-    original = sample[images.shape[1] // 2:, :].reshape(length // 2)
-    # reduce to the remaining half and flatten
-    destroyed = sample[:images.shape[1] // 2, :].reshape(length // 2)
-    # recall from Boltzmann
-    print('restore by recall...')
-    clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
-    output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
-    # try multiple restores and take average
-    restores = [b.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
-    restore = np.mean(np.array(restores, dtype=np.float), axis=0)
-    # some measure about the quality of the restore
-    good_pixels = np.sum(restore[original == 1])
-    bad_pixels = np.sum(restore[original == 0])
-    print(f'good_pixels = {good_pixels}, bad_pixels = {bad_pixels}')
-    quality = good_pixels - bad_pixels
-    return hidden_layers, quality
+def vec2im(vectors):
+    if vectors.ndim == 1:
+        length = np.sqrt(vectors.shape[0]).astype(np.int)
+        return vectors.reshape((length,length))
+    elif vectors.ndim == 2:
+        count = vectors.shape[0]
+        length = np.sqrt(vectors.shape[1]).astype(np.int)
+        return vectors.reshape((count,length,length))
 
 
-def plt_quality(title, xlabel, x, quality, plt_savefig_path, xticks=None):
-    plt.figure(title.replace(',', ''), figsize=(12, 4))
-    plt.plot(x, quality)
-    plt.title(title)
-    plt.xlabel(xlabel, fontsize=16)
-    if not xticks is None:
-        plt.xticks(xticks)
-    plt.ylabel('quality q', fontsize=16)
-    plt.tight_layout()
-    plt.savefig(plt_savefig_path + title.replace(',', '').replace(' ', '_') + '.png')
-
-
-def mnist_test():
-    images, labels = get_data()
-    # plt.imshow(images[0,:,:], cmap='gray')
-
-    plt.rcParams.update({'font.size': 11})
-    plt_savefig_path = '../data/mnist_restore/'
-    os.makedirs(plt_savefig_path, exist_ok=True)
-
-    # run few images test
-    iterations = 100
-    num_images = 10
-    annealing = [(8., 100)]
-    coocurance = (annealing[-1][0], 10)
-    synchron_update = True
-    noise_probability = 0.8
-    test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
-
-    # variate number of iterations on few images
-    quality = []
-    iterationslist = np.arange(10, 151, 10)
-    for iterations in iterationslist:
-        print(f'iterations = {iterations}')
-        hidden_layers, q = test_restore345_quality(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
-        quality.append(q)
-    learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
-    sync_text = 'sync' if synchron_update else 'async'
-    title = f'restore quality, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
-    plt_quality(title, 'iterations', iterationslist, quality, plt_savefig_path, xticks=iterationslist)
-
-    # variate temperature on few images
-    iterations = 100
-    quality = []
-    temps = np.arange(2, 21, 2)
-    for T in temps:
-        print(f'T = {T}')
-        annealing = [(float(T), 100)]
-        coocurance = (annealing[-1][0], 10)
-        hidden_layers, q = test_restore345_quality(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
-        quality.append(q)
-    learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
-    sync_text = 'sync' if synchron_update else 'async'
-    title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, {sync_text}'
-    plt_quality(title, 'temperature T', temps, quality, plt_savefig_path, xticks=temps)
-
-    # run many images test
-    iterations = 10
-    num_images = 100
-    annealing = [(8., 100)]
-    coocurance = (annealing[-1][0], 10)
-    test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, plt_savefig_path)
-
-    plt.show()
-
-
-if __name__ == '__main__':
-    mnist_test()
+def im2binary(images):
+    return (images > 0.5)*1
