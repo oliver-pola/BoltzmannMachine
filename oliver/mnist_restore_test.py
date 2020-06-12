@@ -53,6 +53,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
         plt.xlabel('label histogram', fontsize=16)
         plt.tight_layout()
         plt.savefig(plotfilename)
+        plt.close()
 
     # consider whole image as input, no output
     out_len = 0
@@ -63,8 +64,11 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
     title = f'test restore, {iterations} iterations, {count} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
     boltzmannpath = save_path + title.replace(',', '').replace(' ', '_') # folder
     plotfilename = boltzmannpath + '.png' # next to folder
+    restorefilename = boltzmannpath + '/restores_mean' # additional file in BM folder
 
-    if os.path.exists(boltzmannpath):
+    if os.path.exists(plotfilename) and os.path.exists(restorefilename):
+        print('results ready')
+    elif os.path.exists(boltzmannpath):
         bm = load_boltzmann(boltzmannpath)
         print('loaded pretrained')
     else:
@@ -124,7 +128,6 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
         plt.xlabel('restored', fontsize=16)
 
     # try multiple restores and take average
-    restorefilename = boltzmannpath + '/restores_mean' # additional file in BM folder
     if os.path.exists(restorefilename):
         restore = np.loadtxt(restorefilename, dtype=np.float)
         print('restore loaded')
@@ -143,6 +146,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
         plt.xlabel('mean of 20 restores', fontsize=16)
         plt.tight_layout()
         plt.savefig(plotfilename)
+        plt.close()
 
     # some measure about the quality of the restore
     good_pixels = np.sum(restore[original == 1])
@@ -152,16 +156,20 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
     return hidden_layers, quality
 
 
-def plt_quality(title, xlabel, x, quality, save_path, xticks=None):
+def plt_quality(title, xlabel, x, qualities, save_path, xticks=None, legend=None):
     plt.figure(title.replace(',', ''), figsize=(12, 4))
-    plt.plot(x, quality)
+    for quality in qualities:
+        plt.plot(x, quality, 'o-')
     plt.title(title)
     plt.xlabel(xlabel, fontsize=16)
     if not xticks is None:
         plt.xticks(xticks)
     plt.ylabel('quality q', fontsize=16)
+    if not legend is None:
+        plt.legend(legend)
     plt.tight_layout()
     plt.savefig(save_path + title.replace(',', '').replace(' ', '_') + '.png')
+    # plt.close()
 
 
 def mnist_restore_test():
@@ -183,36 +191,44 @@ def mnist_restore_test():
     # test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, save_path)
 
     # variate number of iterations
-    quality = []
+    quality_sync = []
+    quality_async = []
     iterationslist = np.arange(10, 151, 10)
     for iterations in iterationslist:
-        print(f'iterations = {iterations}')
-        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, save_path)
-        quality.append(q)
+        print(f'iterations = {iterations}, sync')
+        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, True, noise_probability, save_path)
+        quality_sync.append(q)
+        print(f'iterations = {iterations}, async')
+        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, False, noise_probability, save_path)
+        quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
     cooccur_epochs = coocurance[1]
-    sync_text = 'sync' if synchron_update else 'async'
-    title = f'restore quality, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
-    plt_quality(title, 'iterations', iterationslist, quality, save_path, xticks=iterationslist)
+    iterations_as_epochs = iterationslist * (learn_epochs + cooccur_epochs)
+    # sync_text = 'sync' if synchron_update else 'async'
+    title = f'restore quality, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}'
+    # plt_quality(title, 'iterations', iterationslist, quality, save_path, xticks=iterationslist)
+    plt_quality(title + ', sync', 'epochs', iterations_as_epochs, [quality_sync], save_path)
+    plt_quality(title + ', async', 'epochs', iterations_as_epochs, [quality_async], save_path)
+    plt_quality(title, 'epochs', iterations_as_epochs, [quality_sync, quality_async], save_path, legend=['synchron', 'asynchron'])
 
     # variate temperature
     iterations = 100
     quality = []
     temps = np.arange(1, 21, 1)
     for T in temps:
-        print(f'T = {T}')
         annealing = [(float(T), 100)]
         coocurance = (annealing[-1][0], 10)
         iterationslist = np.arange(10, iterations + 1, 10)
         # just generate the intermediate plots and keep the final iterations
         for i in iterationslist:
+            print(f'T = {T}, iterations = {i}')
             hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, synchron_update, noise_probability, save_path)
         quality.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
     cooccur_epochs = coocurance[1]
     sync_text = 'sync' if synchron_update else 'async'
     title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, {sync_text}'
-    plt_quality(title, 'temperature T', temps, quality, save_path, xticks=temps)
+    plt_quality(title, 'temperature T', temps, [quality], save_path, xticks=temps)
 
     # plt.show()
 
