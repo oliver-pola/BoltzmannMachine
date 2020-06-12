@@ -97,7 +97,6 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
     # reduce to the remaining half and flatten
     destroyed = mnist.im2vec(sample[:images.shape[1] // 2, :])
     # recall from Boltzmann
-    print('restore by recall...')
     clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
     output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
 
@@ -125,8 +124,15 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
         plt.xlabel('restored', fontsize=16)
 
     # try multiple restores and take average
-    restores = [bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
-    restore = np.mean(np.array(restores, dtype=np.float), axis=0)
+    restorefilename = boltzmannpath + '/restores_mean' # additional file in BM folder
+    if os.path.exists(restorefilename):
+        restore = np.loadtxt(restorefilename, dtype=np.float)
+        print('restore loaded')
+    else:
+        print('restore by recall...')
+        restores = [bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
+        restore = np.mean(np.array(restores, dtype=np.float), axis=0)
+        np.savetxt(restorefilename, restore)
 
     if not os.path.exists(plotfilename):
         sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
