@@ -64,7 +64,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
     title = f'test restore, {iterations} iterations, {count} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
     boltzmannpath = save_path + title.replace(',', '').replace(' ', '_') # folder
     plotfilename = boltzmannpath + '.png' # next to folder
-    restorefilename = boltzmannpath + '/restores_mean' # additional file in BM folder
+    restorefilename = boltzmannpath + '/restores' # additional file in BM folder
 
     if os.path.exists(plotfilename) and os.path.exists(restorefilename):
         print('results ready')
@@ -104,6 +104,16 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
     clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
     output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
 
+    # try multiple restores and take average
+    if os.path.exists(restorefilename):
+        restores = np.loadtxt(restorefilename, dtype=np.float)
+        print('restores loaded')
+    else:
+        print('restores by recall...')
+        restores = [bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
+        np.savetxt(restorefilename, restores)
+    restoremean = np.mean(np.array(restores, dtype=np.float), axis=0)
+
     if not os.path.exists(plotfilename):
         restore = bm.recall(destroyed, clamp_mask, output_mask)
         plt.figure(title.replace(',', ''), figsize=(12, 4))
@@ -120,25 +130,14 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
         plt.xlabel('destroyed', fontsize=16)
         plt.suptitle(title, y=0.91)
         # fill the lower half of sample
-        sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
+        sample[images.shape[1] // 2:, :] = restores[0].reshape(-1, images.shape[2])
         plt.subplot(143)
         plt.imshow(sample, cmap='gray')
         plt.xticks([])
         plt.yticks([])
         plt.xlabel('restored', fontsize=16)
-
-    # try multiple restores and take average
-    if os.path.exists(restorefilename):
-        restore = np.loadtxt(restorefilename, dtype=np.float)
-        print('restore loaded')
-    else:
-        print('restore by recall...')
-        restores = [bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
-        restore = np.mean(np.array(restores, dtype=np.float), axis=0)
-        np.savetxt(restorefilename, restore)
-
-    if not os.path.exists(plotfilename):
-        sample[images.shape[1] // 2:, :] = restore.reshape(-1, images.shape[2])
+        # fill the lower half with mean over 20 restores
+        sample[images.shape[1] // 2:, :] = restoremean.reshape(-1, images.shape[2])
         plt.subplot(144)
         plt.imshow(sample, cmap='gray')
         plt.xticks([])
@@ -149,8 +148,8 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
         plt.close()
 
     # some measure about the quality of the restore
-    good_pixels = np.sum(restore[original == 1])
-    bad_pixels = np.sum(restore[original == 0])
+    good_pixels = np.sum(restoremean[original == 1])
+    bad_pixels = np.sum(restoremean[original == 0])
     print(f'good_pixels = {good_pixels}, bad_pixels = {bad_pixels}')
     quality = good_pixels - bad_pixels
     return hidden_layers, quality
