@@ -166,7 +166,31 @@ def plt_quality(title, xlabel, x, qualities, save_path, xticks=None, legend=None
         plt.xticks(xticks)
     plt.ylabel('quality q', fontsize=16)
     if not legend is None:
-        plt.legend(legend)
+        plt.legend(legend, loc='lower right')
+    plt.tight_layout()
+    plt.savefig(save_path + title.replace(',', '').replace(' ', '_') + '.png')
+    # plt.close()
+
+
+def plt_quality_sep_y(title, xlabel, x, qualities, save_path, xticks=None, legend=None):
+    fig = plt.figure(title.replace(',', ''), figsize=(12, 4))
+    ax1 = fig.add_subplot(111)
+    axi = None
+    for i, quality in enumerate(qualities):
+        if axi is None:
+            axi = ax1
+            plts = axi.plot(x, quality, 'o-', color=f'C{i}')
+        else:
+            axi = ax1.twinx()
+            plts = plts + axi.plot(x, quality, 'o-', color=f'C{i}')
+        axi.set_ylabel('quality q', fontsize=16, color=f'C{i}')
+        axi.tick_params(axis='y', labelcolor=f'C{i}')
+    plt.title(title)
+    ax1.set_xlabel(xlabel, fontsize=16)
+    if not xticks is None:
+        ax1.set_xticks(xticks)
+    if not legend is None:
+        ax1.legend(plts, legend, loc='lower right')
     plt.tight_layout()
     plt.savefig(save_path + title.replace(',', '').replace(' ', '_') + '.png')
     # plt.close()
@@ -216,18 +240,27 @@ def mnist_restore_test():
     quality_sync = []
     quality_async = []
     temps = np.arange(1, 21, 1)
+    scan = True # set to False if all data already exists and to just regenerate plot
     for T in temps:
         annealing = [(float(T), 100)]
         coocurance = (annealing[-1][0], 10)
         iterationslist = np.arange(10, iterations + 1, 10)
-        # just generate the intermediate plots and keep the final iterations
-        for i in iterationslist:
-            print(f'T = {T}, iterations = {i}')
-            hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, True, noise_probability, save_path)
+        if scan:
+            # just generate the intermediate plots and keep the final iterations
+            for i in iterationslist:
+                print(f'T = {T}, iterations = {i}')
+                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, True, noise_probability, save_path)
+        else:
+            print(f'T = {T}, iterations = {iterations}')
+            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, True, noise_probability, save_path)
         quality_sync.append(q)
-        for i in iterationslist:
-            print(f'T = {T}, iterations = {i}')
-            hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, False, noise_probability, save_path)
+        if scan:
+            for i in iterationslist:
+                print(f'T = {T}, iterations = {i}')
+                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, False, noise_probability, save_path)
+        else:
+            print(f'T = {T}, iterations = {iterations}')
+            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, False, noise_probability, save_path)
         quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
     cooccur_epochs = coocurance[1]
@@ -235,7 +268,7 @@ def mnist_restore_test():
     title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs'
     plt_quality(title + ', sync', 'temperature T', temps, [quality_sync], save_path, xticks=temps)
     plt_quality(title + ', async', 'temperature T', temps, [quality_async], save_path, xticks=temps)
-    plt_quality(title, 'temperature T', temps, [quality_sync, quality_async], save_path, xticks=temps, legend=['synchron', 'asynchron'])
+    plt_quality_sep_y(title, 'temperature T', temps, [quality_sync, quality_async], save_path, xticks=temps, legend=['synchron', 'asynchron'])
 
     # plt.show()
 
