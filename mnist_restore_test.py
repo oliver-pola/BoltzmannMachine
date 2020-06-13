@@ -97,9 +97,9 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
     # pick a sample 3
     sample = images[labels == 3][0]
     # destroy lower half just for visualization
-    original = mnist.im2vec(sample[images.shape[1] // 2:, :])
+    original = mnist.im2vec(sample[images.shape[1] // 2:, :]).copy()
     # reduce to the remaining half and flatten
-    destroyed = mnist.im2vec(sample[:images.shape[1] // 2, :])
+    destroyed = mnist.im2vec(sample[:images.shape[1] // 2, :]).copy()
     # recall from Boltzmann
     clamp_mask = np.append(np.ones(length // 2), np.zeros(length // 2))
     output_mask = np.append(np.zeros(length // 2), np.ones(length // 2))
@@ -110,12 +110,11 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
         print('restores loaded')
     else:
         print('restores by recall...')
-        restores = [bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)]
+        restores = np.array([bm.recall(destroyed, clamp_mask, output_mask) for i in range(20)], dtype=np.float)
         np.savetxt(restorefilename, restores)
-    restoremean = np.mean(np.array(restores, dtype=np.float), axis=0)
+    restoremean = np.mean(restores, axis=0)
 
     if not os.path.exists(plotfilename):
-        restore = bm.recall(destroyed, clamp_mask, output_mask)
         plt.figure(title.replace(',', ''), figsize=(12, 4))
         plt.subplot(141)
         plt.imshow(sample, cmap='gray')
@@ -150,7 +149,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocurren
     # some measure about the quality of the restore
     good_pixels = np.sum(restoremean[original == 1])
     bad_pixels = np.sum(restoremean[original == 0])
-    print(f'good_pixels = {good_pixels}, bad_pixels = {bad_pixels}')
+    print(f'good_pixels = {good_pixels} (of {np.sum(original == 1)}), bad_pixels = {bad_pixels} (of {np.sum(original == 0)})')
     quality = good_pixels - bad_pixels
     return hidden_layers, quality
 
