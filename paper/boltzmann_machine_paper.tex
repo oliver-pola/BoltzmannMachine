@@ -642,11 +642,17 @@ While all other meta-parameters are kept fixed, the same experiment is performed
 To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied.
 The left term rewards pixels set in the restored pattern where a pixel was set in the original, and the right, negative, term punishes restored pixels where no original pixel was set:
 $$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
-The results in \cref{fig:test_vary_epoch_t} show that, at least for 10 images only, the results will not get better extending the number of epochs.
+The results in \cref{fig:test_vary_epoch_t} a) show that, at least for 10 images only, the results will not get better extending the number of epochs.
 
-About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$. The two peaks seen in \cref{fig:test_vary_epoch_t} are not expected and without explanation. The peak at higher $T$ is considered to be of more random nature and we preferred the peak at $T=8$ for our experiment.
-\todo{whatever is seen in the T scan varies a lot}
+About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$.
 
+The course seen in \cref{fig:test_vary_epoch_t} b) is not expected and without explanation.
+To gain information out of this, an average over many runs of this experiment would be needed, but was not conducted due to time restrictions.
+Peaks at very low $T$ are considered as lucky initial randomness in this instance, whereas higher $T$ is considered to be of more random nature. The peak at $T=8$ seemed to be most stable and was chosen to be the base value for our experiment.
+
+As the synchronous update was implemented to benefit from easier parallelization, we focused to tune the meta-parameters for this version. \cref{fig:test_vary_epoch_t} shows that the behavior is different.
+For the chosen set of parameters the synchronous update is more stable and does not degrade when continuing learning for more epochs.
+Another set of parameters might be the sweet spot for the asynchronous update to reach this stability.
 
 
 \section{Discussion}
