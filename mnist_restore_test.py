@@ -12,7 +12,7 @@ import mnist
 from boltzmann import Boltzmann, load_boltzmann
 
 
-def test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, save_path):
+def test_restore345(images, labels, iterations, num_images, annealing, coocurrence, synchron_update, noise_probability, save_path):
     # just pick images with label 3, 4, 5
     pick_labels = [3, 4, 5]
     mask = np.zeros(labels.shape, dtype=bool)
@@ -59,7 +59,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
     out_len = 0
     hidden_layers = length # equal amount as visible layers
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
+    cooccur_epochs = coocurrence[1]
     sync_text = 'sync' if synchron_update else 'async'
     title = f'test restore, {iterations} iterations, {count} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}, {sync_text}'
     boltzmannpath = save_path + title.replace(',', '').replace(' ', '_') # folder
@@ -88,7 +88,7 @@ def test_restore345(images, labels, iterations, num_images, annealing, coocuranc
         # train from scratch
         if not found:
             bm = Boltzmann(length, hidden_layers, out_len,
-                annealing, coocurance, synchron_update=synchron_update)
+                annealing, coocurrence, synchron_update=synchron_update)
             # learning
             bm.learn(img123, iterations, noise_probability=noise_probability)
             print('learning finished')
@@ -209,10 +209,10 @@ def mnist_restore_test():
     iterations = 100
     num_images = 10
     annealing = [(8., 100)]
-    coocurance = (annealing[-1][0], 10)
+    coocurrence = (annealing[-1][0], 10)
     synchron_update = True
     noise_probability = 0.8
-    # test_restore345(images, labels, iterations, num_images, annealing, coocurance, synchron_update, noise_probability, save_path)
+    # test_restore345(images, labels, iterations, num_images, annealing, coocurrence, synchron_update, noise_probability, save_path)
 
     # variate number of iterations
     quality_sync = []
@@ -220,13 +220,13 @@ def mnist_restore_test():
     iterationslist = np.arange(10, 151, 10)
     for iterations in iterationslist:
         print(f'iterations = {iterations}, sync')
-        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, True, noise_probability, save_path)
+        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, True, noise_probability, save_path)
         quality_sync.append(q)
         print(f'iterations = {iterations}, async')
-        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, False, noise_probability, save_path)
+        hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, False, noise_probability, save_path)
         quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
+    cooccur_epochs = coocurrence[1]
     iterations_as_epochs = iterationslist * (learn_epochs + cooccur_epochs)
     # sync_text = 'sync' if synchron_update else 'async'
     title = f'restore quality, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, T={annealing[-1][0]:.0f}'
@@ -243,27 +243,27 @@ def mnist_restore_test():
     scan = True # set to False if all data already exists and to just regenerate plot
     for T in temps:
         annealing = [(float(T), annealing[-1][1])]
-        coocurance = (annealing[-1][0], coocurance[1])
+        coocurrence = (annealing[-1][0], coocurrence[1])
         iterationslist = np.arange(10, iterations + 1, 10)
         if scan:
             # just generate the intermediate plots and keep the final iterations
             for i in iterationslist:
                 print(f'T = {T}, iterations = {i}')
-                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, True, noise_probability, save_path)
+                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurrence, True, noise_probability, save_path)
         else:
             print(f'T = {T}, iterations = {iterations}')
-            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, True, noise_probability, save_path)
+            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, True, noise_probability, save_path)
         quality_sync.append(q)
         if scan:
             for i in iterationslist:
                 print(f'T = {T}, iterations = {i}')
-                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, False, noise_probability, save_path)
+                hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurrence, False, noise_probability, save_path)
         else:
             print(f'T = {T}, iterations = {iterations}')
-            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurance, False, noise_probability, save_path)
+            hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, False, noise_probability, save_path)
         quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
-    cooccur_epochs = coocurance[1]
+    cooccur_epochs = coocurrence[1]
     # sync_text = 'sync' if synchron_update else 'async'
     title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs'
     plt_quality(title + ', sync', 'temperature T', temps, [quality_sync], save_path, xticks=temps)

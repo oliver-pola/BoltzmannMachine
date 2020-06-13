@@ -14,7 +14,7 @@ class Boltzmann:
             self.epochs = epochs
 
 
-    def __init__(self, visible, hidden, output, annealing, coocurance, synchron_update=False):
+    def __init__(self, visible, hidden, output, annealing, coocurrence, synchron_update=False):
         """
         Initialize a Boltzmann machine with the given parameters
 
@@ -25,7 +25,7 @@ class Boltzmann:
               the two visible layer do not have direct connections between each other
         annealing: An annealing schedule consisting of a list of tuples in the form
               of (<temperature>, <epochs>)
-        coocurance: Coocurance cycle. One tuple in the form of (<temperature>, <epochs>)
+        coocurrence: Coocurrence cycle. One tuple in the form of (<temperature>, <epochs>)
         """
         self.num_visible_units = visible
         self.num_hidden_units = hidden
@@ -35,7 +35,7 @@ class Boltzmann:
         self.annealing_schedule = []
         for tuple in annealing:
             self.annealing_schedule.append(self.Step(tuple[0], tuple[1]))
-        self.coocurrance_cycle = self.Step(coocurance[0], coocurance[1])
+        self.coocurrence_cycle = self.Step(coocurrence[0], coocurrence[1])
 
         self.synchron_update = synchron_update
 
@@ -89,7 +89,7 @@ class Boltzmann:
     def learn(self, patterns, iterations, noise_probability=0.8, noise_bias=0.05, reset=True):
         patterns = np.array(patterns)
         num_patterns = patterns.shape[0]
-        trials = self.coocurrance_cycle.epochs * num_patterns
+        trials = self.coocurrence_cycle.epochs * num_patterns
         if reset:
             self.weights = np.zeros((self.num_units, self.num_units))
 
@@ -119,7 +119,7 @@ class Boltzmann:
                 self.states[-self.num_hidden_units:] = np.random.choice([0,1],self.num_hidden_units)
 
                 self.anneal(self.annealing_schedule, visible_ones)
-                pplus += self.sum_coocurrance(visible_ones)
+                pplus += self.sum_coocurrence(visible_ones)
 
             pplus/= trials
 
@@ -128,7 +128,7 @@ class Boltzmann:
             sys.stdout.flush()
             self.states = np.random.choice([0,1], self.num_units)
             self.anneal(self.annealing_schedule, visible_zeros)
-            pminus = self.sum_coocurrance(visible_zeros) / self.coocurrance_cycle.epochs
+            pminus = self.sum_coocurrence(visible_zeros) / self.coocurrence_cycle.epochs
 
             self.update_weights(pplus, pminus)
         sys.stdout.write(f'\n')
@@ -199,12 +199,12 @@ class Boltzmann:
                 self.states[unit] = 1. if np.random.uniform() <= p else 0
 
 
-    def sum_coocurrance(self, clamp_mask):
+    def sum_coocurrence(self, clamp_mask):
         sums = np.zeros(self.num_connections)
         # upper right trangle, without diagonal
         triu = np.triu_indices(self.num_units, 1)
-        for epoch in range(self.coocurrance_cycle.epochs):
-            self.propagate(self.coocurrance_cycle.temperature, clamp_mask)
+        for epoch in range(self.coocurrence_cycle.epochs):
+            self.propagate(self.coocurrence_cycle.temperature, clamp_mask)
             # keep only idx where state of that row == 1
             rows_keep = self.states[triu[0]]==1
             idx = (triu[0][rows_keep], triu[1][rows_keep])
@@ -242,8 +242,8 @@ class Boltzmann:
             for step in self.annealing_schedule:
                 file.write(str(step.temperature) + "/" + str(step.epochs) +str(","))
             file.write("\n")
-            file.write(str(self.coocurrance_cycle.temperature) + "/" + \
-                    str(self.coocurrance_cycle.epochs) + "\n")
+            file.write(str(self.coocurrence_cycle.temperature) + "/" + \
+                    str(self.coocurrence_cycle.epochs) + "\n")
             file.write(str(self.synchron_update) + "\n")
         file.close()
 
@@ -274,10 +274,10 @@ def load_boltzmann(load_dir):
         cooc_list = lines[4].replace("\n", "").split("/")
         temp = float(cooc_list[0])
         epochs = int(cooc_list[1])
-        coocurrance_cycle = (temp, epochs)
+        coocurrence_cycle = (temp, epochs)
         sync_update = lines[5].replace("\n", "") == "True"
 
-        bm = Boltzmann(visible,hidden,output,annealing_schedule,coocurrance_cycle,sync_update)
+        bm = Boltzmann(visible,hidden,output,annealing_schedule,coocurrence_cycle,sync_update)
     file.close()
 
     weights_file = load_dir + "/boltzmann_save_weights"
