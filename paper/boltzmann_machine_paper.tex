@@ -232,7 +232,7 @@ These states don't have to be atom spins and this principle could be applied to 
 
 The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas a Hopfield networks does not have hidden units, this is the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
 
-Being based on the theoretical background of the original BM paper from Ackley, Hinton and Sejnowski~\cite{Ackley}, we provide an implementation in Python. Our code\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}} is similar to and based on the code by Cartas~\cite{BMImpl}, but we tried to optimize that code, make it more flexible by parameterization and add a new feature, the synchronous update.
+Being based on the theoretical background of the original BM paper from Ackley, Hinton and Sejnowski~\cite{Ackley}, we provide an implementation in Python. Our code is similar to and based on the code by Cartas~\cite{BMImpl}, but we tried to optimize that code, make it more flexible by parameterization and add a new feature, the synchronous update.
 
 In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Salakhutdinov}, Hinton~\cite{Hinton}, Sutskever, Hinton and Taylor~\cite{Sutskever} or Courville, Bergstra and Bengio~\cite{Courville}, we do not deal with the restricted BM (RBM), but with the general case.
 
@@ -419,6 +419,7 @@ COLLECT-STATISTICS():
 
 
 \subsection{The recall phase}
+\label{subsec:recall}
 
 What we will call the recall phase in this paper describes using the previously trained BM to create output patterns.
 As we have already discussed the BM only consists of one visible and one hidden layer and does not have a clear output
@@ -518,7 +519,48 @@ Based on the Python implementation from Cartas~\cite{BMImpl}, we generalized to 
 
 The idea was to bring the BM to the current world of neural networks, that offers frameworks like TensorFlow\footnote{\url{https://www.tensorflow.org}} or PyTorch\footnote{\url{https://pytorch.org}}. But the BM is a stochastic neural network, uses its own energy-based minimization process and does not use activation functions or backpropagation. The BM would not utilize any of the builtin tools these frameworks offer, and thus is hard to integrate. 
 
-Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.
+Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.\newline
+
+Our final implementation of the Boltzmann machine can be found on github\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}}. We tried to make it as generalised as possible
+so that our Boltzmann python class can be used quite easily on all kinds of problems that one might use a BM for. The final code has a low number of dependencies and should be
+easy to use. It is almost purely build with the use of numpy, which should be easy to install for any user.
+At the creation of a Boltzmann class instance a list of free parameters can be adjusted to fit the current use case:
+\begin{itemize}
+    \item \textbf{Size of visible layer}: This should simply be set to the size of the input patterns that will be learned
+    \item \textbf{Size of hidden layer}: A free parameter that
+        has to be tuned to the problem. In our tests we could
+        not find a good general recommendation for the size
+        of the hidden layer in respect to the visible layer size.
+        Intuitively the hidden layer should be as as large as possible to allow 
+        the BM to store as much information as possible. The drawback of this is however
+        a strong increase in runtime. In practice the hidden layer size should 
+        probably be set close to the size of the visible layer to make good use of it and
+        at the same time not cause too much of an increase in the runtime.
+
+    \item \textbf{Size of output layer(optional)}: This is an optional
+        Argument which in the general use case can just be set to zero.
+        The function of an so called output layer is to allow use cases as
+        for example the encoder-problem which was described in \cref{subsec:recall}, where
+        the visible layer needs to be split into two parts that are not interconnected.
+    \item \textbf{Annealing shedule}: This argument expects a list of tuples of the form
+        \lstinline{(<temperature>, <epochs>)}. These are the values for temperature and the
+        number of epochs which will be used in the learning phase of the BM.
+        In the general case a single tuple should suffice here but our implementation also
+        supports the so called annealing method for learning where the learning phase
+        is started with a high temperature which is then slowly decreased over time.
+    \item \textbf{Co-occurrance shedule}: This argument again takes a tuple of the form
+        \lstinline{(<temperature>, <epochs>)}. This is the temperature and number of
+        epoch which is spend in the \lstinline{COLLECT-STATISTICS} part of the
+        learning algorithm. The temperature chosen here should match the learning
+        temperature in most cases but the number of epochs can differ since we
+        only need enough epochs to get meaningful values for the update-weights
+        part of the learning algorithm.
+    \item \textbf{Synchron update flag}: Lastly it can be decided if the asynchronous or
+        synchronous update procedure should be used.
+\end{itemize}
+
+The final code can as mentioned before be found in our github repository along
+with the code that was used to create the results in \cref{sec:results}.
 
 
 %\section{Variants}
