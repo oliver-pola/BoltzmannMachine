@@ -542,13 +542,13 @@ At the creation of a Boltzmann class instance a list of free parameters can be a
         The function of an so called output layer is to allow use cases as
         for example the encoder-problem which was described in \cref{subsec:recall}, where
         the visible layer needs to be split into two parts that are not interconnected.
-    \item \textbf{Annealing shedule}: This argument expects a list of tuples of the form
+    \item \textbf{Annealing schedule}: This argument expects a list of tuples of the form
         \lstinline{(<temperature>, <epochs>)}. These are the values for temperature and the
         number of epochs which will be used in the learning phase of the BM.
         In the general case a single tuple should suffice here but our implementation also
         supports the so called annealing method for learning where the learning phase
         is started with a high temperature which is then slowly decreased over time.
-    \item \textbf{Co-occurrance shedule}: This argument again takes a tuple of the form
+    \item \textbf{Co-occurrence schedule}: This argument again takes a tuple of the form
         \lstinline{(<temperature>, <epochs>)}. This is the temperature and number of
         epoch which is spend in the \lstinline{COLLECT-STATISTICS} part of the
         learning algorithm. The temperature chosen here should match the learning
