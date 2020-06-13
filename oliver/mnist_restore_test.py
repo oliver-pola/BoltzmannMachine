@@ -247,18 +247,18 @@ def mnist_restore_test():
         if scan:
             # just generate the intermediate plots and keep the final iterations
             for i in iterationslist:
-                print(f'T = {T}, iterations = {i}')
+                print(f'T = {T}, iterations = {i}, sync')
                 hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurrence, True, noise_probability, save_path)
         else:
-            print(f'T = {T}, iterations = {iterations}')
+            print(f'T = {T}, iterations = {iterations}, sync')
             hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, True, noise_probability, save_path)
         quality_sync.append(q)
         if scan:
             for i in iterationslist:
-                print(f'T = {T}, iterations = {i}')
+                print(f'T = {T}, iterations = {i}, async')
                 hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurrence, False, noise_probability, save_path)
         else:
-            print(f'T = {T}, iterations = {iterations}')
+            print(f'T = {T}, iterations = {iterations}, async')
             hidden_layers, q = test_restore345(images, labels, iterations, num_images, annealing, coocurrence, False, noise_probability, save_path)
         quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
