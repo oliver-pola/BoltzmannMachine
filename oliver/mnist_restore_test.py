@@ -213,7 +213,8 @@ def mnist_restore_test():
 
     # variate temperature
     iterations = 100
-    quality = []
+    quality_sync = []
+    quality_async = []
     temps = np.arange(1, 21, 1)
     for T in temps:
         annealing = [(float(T), 100)]
@@ -222,13 +223,19 @@ def mnist_restore_test():
         # just generate the intermediate plots and keep the final iterations
         for i in iterationslist:
             print(f'T = {T}, iterations = {i}')
-            hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, synchron_update, noise_probability, save_path)
-        quality.append(q)
+            hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, True, noise_probability, save_path)
+        quality_sync.append(q)
+        for i in iterationslist:
+            print(f'T = {T}, iterations = {i}')
+            hidden_layers, q = test_restore345(images, labels, i, num_images, annealing, coocurance, False, noise_probability, save_path)
+        quality_async.append(q)
     learn_epochs = np.sum(np.array(annealing, dtype=np.int), axis=0)[1]
     cooccur_epochs = coocurance[1]
-    sync_text = 'sync' if synchron_update else 'async'
-    title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs, {sync_text}'
-    plt_quality(title, 'temperature T', temps, [quality], save_path, xticks=temps)
+    # sync_text = 'sync' if synchron_update else 'async'
+    title = f'restore quality, {iterations} iterations, {num_images} images, {noise_probability} noise, {hidden_layers} hidden layer, {learn_epochs} learn epochs, {cooccur_epochs} cooccur epochs'
+    plt_quality(title + ', sync', 'temperature T', temps, [quality_sync], save_path, xticks=temps)
+    plt_quality(title + ', async', 'temperature T', temps, [quality_async], save_path, xticks=temps)
+    plt_quality(title, 'temperature T', temps, [quality_sync, quality_async], save_path, xticks=temps, legend=['synchron', 'asynchron'])
 
     # plt.show()
 

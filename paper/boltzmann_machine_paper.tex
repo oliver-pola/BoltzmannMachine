@@ -596,7 +596,7 @@ Having seen a good result from the experiment with 10 images in \cref{subsec:rec
 	\footnotesize On the same experiment from \cref{subsec:recall}, the learning phase is repeated for every data point on the x-axis. After recalling the pattern, the quality is measured by $q$ and displayed on the y-axis.
 \end{figure}
 
-While all other meta-parameters are kept fixed the same experiment is performed, but with varying total amount of epochs and temperature.
+While all other meta-parameters are kept fixed, the same experiment is performed, but with varying total amount of epochs and temperature.
 To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied.
 The left term rewards pixels set in the restored pattern where a pixel was set in the original, and the right, negative, term punishes restored pixels where no original pixel was set:
 $$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
