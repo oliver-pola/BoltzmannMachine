@@ -85,4 +85,4 @@ def vec2im(vectors):
 
 
 def im2binary(images):
-    return (images > 0.5)*1
+    return (images > 0.5) * 1.0
