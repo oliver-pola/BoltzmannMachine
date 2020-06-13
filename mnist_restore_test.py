@@ -242,8 +242,8 @@ def mnist_restore_test():
     temps = np.arange(1, 21, 1)
     scan = True # set to False if all data already exists and to just regenerate plot
     for T in temps:
-        annealing = [(float(T), 100)]
-        coocurance = (annealing[-1][0], 10)
+        annealing = [(float(T), annealing[-1][1])]
+        coocurance = (annealing[-1][0], coocurance[1])
         iterationslist = np.arange(10, iterations + 1, 10)
         if scan:
             # just generate the intermediate plots and keep the final iterations
