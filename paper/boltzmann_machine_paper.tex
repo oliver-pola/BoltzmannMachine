@@ -523,9 +523,9 @@ The idea was to bring the BM to the current world of neural networks, that offer
 
 Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.\newline
 
-Our final implementation of the Boltzmann machine can be found on github\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}}. We tried to make it as generalised as possible
+Our final implementation of the Boltzmann machine can be found on GitHub\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}}. We tried to make it as generalized as possible
 so that our Boltzmann python class can be used quite easily on all kinds of problems that one might use a BM for. The final code has a low number of dependencies and should be
-easy to use. It is almost purely build with the use of numpy, which should be easy to install for any user.
+easy to use. It is almost purely build with the use of NumPy, which should be easy to install for any user.
 At the creation of a Boltzmann class instance a list of free parameters can be adjusted to fit the current use case:
 \begin{itemize}
     \item \textbf{Size of visible layer}: This should simply be set to the size of the input patterns that will be learned
@@ -667,28 +667,31 @@ As we have seen in this paper the Boltzmann machine is a very interesting approa
 The BM offers itself to do a variety of different experiments that one might not be able to do with more classical neural networks and it especially
 sets itself apart with its stochastic nature. On the other end however the main concern with the BM is still the runtime.
 Even using the synchronous update method our small experiments took a long time to run, even though the size of our data was by no means big.
-In its current form it would be infeasable for our implementation to run experiments on datasets of thousands of pictures or even pictures with
+In its current form it would be infeasible for our implementation to run experiments on datasets of thousands of pictures or even pictures with
 a lot of pixels. The performance of our current implementation could hopefully be improved in future by enabling it to run fully
 parallelized on GPUs. As previously mentioned we tried to integrate our learning algorithm in a modern machine learning framework 
 like Tensorflow but due to the Boltzmann machines very specific stochastic update process, which differs a lot from 
-the normal types of layers that are implemented in these frameworks, this approach was unsuccessful for us.\newline
+the normal types of layers that are implemented in these frameworks, this approach was unsuccessful for us.
+
 The second thing we learned from experimenting with the BM is that it is a very complex task to tune all of the needed parameters correctly to a
 specific problem. As we have seen in \cref{sec:results} we could achieve quite good results for the restoration of destroyed
 input data for the synchronous update method, but for example using the same parameters for the asynchronous update already yielded
 strongly different results. Looking at the temperature plot in \cref{subsec:recall} we can see a lot of variation for the different temperatures
 and no clear trends can be made out. This leads us to the conclusion that the parameter choice is highly specific for each different
-experiment and it is hard to give general advice for the parameter choices.\newline
+experiment and it is hard to give general advice for the parameter choices.
+
 We also observed a strong decrease in the quality of the results when running our experiments on a high number of images.
 This is most likely caused by firstly not finding the correct parameters for these kind of runs and secondly 
-not being able to run them for enough epochs due to the previously mentioned long runtimes.\newline
+not being able to run them for enough epochs due to the previously mentioned long runtimes.
+
 Overall we can say that the Boltzmann machine is a very interesting topic to work on but to be able to use
 it for actual real world problems it would require a lot more experiments and study that go beyond the scope of this seminar.
 
 
-\section{Limitations}
-\label{sec:limits}
-
-Since this is an implementation topic, the main limitations derive from our implementation and may be discussed in that chapter. So this might not result in a chapter on it's own. % TODO
+%\section{Limitations}
+%\label{sec:limits}
+%
+%Since this is an implementation topic, the main limitations derive from our implementation and may be discussed in that chapter. So this might not result in a chapter on it's own. % TODO
 
 
 \section{Future Work}
