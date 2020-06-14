@@ -353,7 +353,7 @@ COLLECT-STATISTICS():
         step-by-step for randomly chosen unclamped units. This version of the update procedure is called asynchronous and we will
         compare it to another possible version called the synchronous update, where the updates do not take place in order
         but are computed all at once in \cref{subsec:updating-procedures}.\newline
-        \todo{general explanation, do it earlier? does not explicitly belong inside positive phase}
+        %\todo{general explanation, do it earlier? does not explicitly belong inside positive phase}
         For each chosen unit at first its energy difference is calculated with the formula
         $$\Delta E_i = \sum_j W_{ij} x_j.$$
         This is similar to other networks and lets the weights $W_{ij}$ and state $x_j$ of other units $j$ influence the current unit $i$. 
@@ -368,7 +368,7 @@ COLLECT-STATISTICS():
         a similar manner.\newline
         Also notice, that for a very high temperature $T$, the probability $p_i$ becomes~$0.5$, so both states $0$ and $1$ will be equally likely.
         This means high temperature leads to randomly changing states. That is not good for a final state, but helpful to explore.
-        \todo{explain stochastic activation formula and stuff... was that it?}
+        %\todo{explain stochastic activation formula and stuff... was that it?}
         
 
         This whole procedure is repeated for all given input patterns. The last step of the positive phase is the collect statistics function which will be explained in
@@ -411,11 +411,12 @@ COLLECT-STATISTICS():
         phase will produce visible layer patterns that represent the distribution of the learned input patterns
         as closely as possible.
 
-        \todo{Use this reference?}
-        % \cite[Chapter~43]{MacKay}\todo{didn't read, just copied reference from Cartas}
+        %\todo{Use this reference?}\cite[Chapter~43]{MacKay}
 \end{enumerate}
 
-\todo{summarize the algorithm, alternating positive/negative phase...}
+%\todo{summarize the algorithm, alternating positive/negative phase...}
+\noindent
+Finally the learning phase iterates in a loop over positive phase, the free-running phase and updating the weights. In theory this should be done until the weights converged. In practice the number of iterations will be fixed to guarantee termination within a reasonable time frame.
 
 
 \subsection{The recall phase}
@@ -500,6 +501,7 @@ of the BM and therefore limits the sizes of the layers if the algorithm is expec
 \label{fig:update-alg}
 \end{figure}
 
+\noindent
 To solve this performance issue a variation of the update algorithm exists which can be parallelized.
 This version is called the synchronous update procedure, and was already an option for Hopfield networks~\cite[Chapter~43]{MacKay}.
 Here the calculations for the state updates are
@@ -559,6 +561,7 @@ At the creation of a Boltzmann class instance a list of free parameters can be a
         synchronous update procedure should be used.
 \end{itemize}
 
+\noindent
 The final code can as mentioned before be found in our github repository along
 with the code that was used to create the results in \cref{sec:results}.
 
@@ -586,14 +589,14 @@ with the code that was used to create the results in \cref{sec:results}.
 
 To apply the BM on a simple but not too minimalistic problem, we use the MNIST dataset\footnote{\url{http://yann.lecun.com/exdb/mnist/}}~\cite{MNIST} containing $60000$ images of handwritten digits with labels. Each image is $28 \times 28$ pixels with grayscale values. Scaling the values to $[0,1]$ would be a good example for using the pixel values as continuous state data. But so far the BM is made for binary states and we applied the midrange threshold to get $\{0, 1\}$ pixel states.
 
+The experiment and its results are presented in two steps. First we show a single use case of the BM in \cref{subsec:recall}. And second, in \cref{subsec:meta}, a search in the parameter space is performed. This shows different outcomes, after training the BM again and repeating the previous experiment.
+
 
 \subsection{Recall digit pixels}
 \label{subsec:recall}
 
 From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output.
 The size of the hidden layer is chosen to be equal to the input layer. The hidden layer is an important feature of the BM in opposition to a Hopfield network. The chosen size should provide the BM with some learning capacity, but due to time restrictions this parameter is not further evaluated.
-
-The chosen total amount of epochs and the temperature are based on the evaluation in \cref{subsec:meta}. The other meta-parameters are based on examples~\cite{BMImpl} and on small exploratory sample runs, but not evaluated in detail.
 
 \begin{figure}[t!]
 	\begin{center}
@@ -608,6 +611,8 @@ The chosen total amount of epochs and the temperature are based on the evaluatio
 	\footnotesize The BM did learn the sample digit 3 to restore, but also did learn other versions of the digit 3 and digits 4, 5 as well. From that sample the lower half is deleted and then restored by the BM. In a) we can see a successful restore of the pattern. The result of b) is not satisfactory.
 \end{figure}
 
+The chosen total amount of epochs and the temperature are based on the evaluation in \cref{subsec:meta}. The other meta-parameters are based on examples~\cite{BMImpl} and on small exploratory sample runs, but not evaluated in detail.
+
 To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution. We always used the same sample and deleted the same pixels, so that the task does not vary in difficulty, knowing that the BM is unable to exploit that.
 
 Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. 
@@ -615,7 +620,7 @@ If only 10 different images are used for training during 100 iterations, the res
 If instead of repeating the same image many times, we show some more variations of each digit, 100 images in total, the result is not satisfying.
 One reason might be if the variations differ too much, but the mean over the shown label~3 images shows, that there is not that much variation and the result should have been better.
 
-We also can see that there is not much variation in calling recall more than once and the same output seems to be given each time. \todo{Why is that?}
+We also can see that there is not much variation in calling recall more than once and almost the same output seems to be given each time. This means the restored pattern is a stable outcome, pretty well defined by the data distribution and the given input.
 
 
 \subsection{Meta-parameter evaluation}
@@ -623,7 +628,19 @@ We also can see that there is not much variation in calling recall more than onc
 
 Having seen a good result from the experiment with 10 images in \cref{subsec:recall}, that same set of meta-parameters is now used as a base for further analysis on the learning phase.
 
-\begin{figure}[b!]
+While all other meta-parameters are kept fixed, the same experiment is performed, but with varying total amount of epochs and temperature.
+To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied.
+The left term rewards pixels set in the restored pattern where a pixel was set in the original, and the right, negative, term punishes restored pixels where no original pixel was set:
+$$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
+The results in \cref{fig:test_vary_epoch_t} a) show that, at least for 10 images only, the results will not get better extending the number of epochs.
+
+About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$.
+
+The course seen in \cref{fig:test_vary_epoch_t} b) is not expected and without explanation.
+To gain information out of this, an average over many runs of this experiment would be needed, but was not conducted due to time restrictions.
+Peaks at very low $T$ are considered as lucky initial randomness in this instance, whereas higher $T$ is considered to be of more random nature. The peak at $T=8$ seemed to be most stable and was chosen to be the base value for our experiment.
+
+\begin{figure}[t!]
 	\begin{center}
 	\begin{overpic}[trim={0.1cm 0cm -1.8cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_epochs}
 		\put (0,28) {a)}
@@ -637,18 +654,6 @@ Having seen a good result from the experiment with 10 images in \cref{subsec:rec
 	\caption{Evaluation of meta-parameters a) amount of epochs and b) temperature}\label{fig:test_vary_epoch_t}
 	\footnotesize On the same experiment from \cref{subsec:recall}, the learning phase is repeated for every data point on the x-axis. After recalling the pattern, the quality is measured by $q$ and displayed on the y-axis.
 \end{figure}
-
-While all other meta-parameters are kept fixed, the same experiment is performed, but with varying total amount of epochs and temperature.
-To have a scalar to measure the quality $q$, a simple approach using the pixel values $x_\text{sample}(i)$ from the original and $x_\text{restore}(i)$ from the restored pattern at the same coordinate $i$ is applied.
-The left term rewards pixels set in the restored pattern where a pixel was set in the original, and the right, negative, term punishes restored pixels where no original pixel was set:
-$$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
-The results in \cref{fig:test_vary_epoch_t} a) show that, at least for 10 images only, the results will not get better extending the number of epochs.
-
-About temperature $T$ is known that at $T=0$ the BM is no longer stochastic, but deterministic. The higher $T$, the more unknown states are tested, instead of staying at the known minimum so far. A too high $T$ though will just cause a lot of noise. From this, a quality maximum is expected for some mid-range $T$.
-
-The course seen in \cref{fig:test_vary_epoch_t} b) is not expected and without explanation.
-To gain information out of this, an average over many runs of this experiment would be needed, but was not conducted due to time restrictions.
-Peaks at very low $T$ are considered as lucky initial randomness in this instance, whereas higher $T$ is considered to be of more random nature. The peak at $T=8$ seemed to be most stable and was chosen to be the base value for our experiment.
 
 As the synchronous update was implemented to benefit from easier parallelization, we focused to tune the meta-parameters for this version. \cref{fig:test_vary_epoch_t} shows that the behavior is different.
 For the chosen set of parameters the synchronous update is more stable and does not degrade when continuing learning for more epochs.
@@ -670,9 +675,9 @@ Since this is an implementation topic, the main limitations derive from our impl
 \section{Future Work}
 \label{sec:future}
 
-(May be covered in the final version of this paper)\\
+%(May be covered in the final version of this paper)\\
 
-\noindent
+%\noindent
 The BM as it was defined and used in this paper is only applicable to static discrete data. As already mentioned when using the MNIST images, we therefor had to adjust or pixel values in range $[0,255]\cap\mathbb{N}$ to be binary $0$ or $1$ via threshold. It would be nice to directly use values in continuous range $[0,1]$ instead. Where we currently set the new state to $1$ with probability $p$, this could be achieved by directly setting the new state to $p$. The other parts of the algorithm then need to be adapted as well.
 
 As the BM is a recurrent neural network, a proper application seems to be time series data. This also seems to be where the Restricted BM is applied, that we have chosen not to cover in this paper. But it might to be possible to adapt the general BM to this task as well.
