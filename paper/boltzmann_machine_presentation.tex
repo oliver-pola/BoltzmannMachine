@@ -247,55 +247,86 @@
 	\tableofcontents
 }
 
-%%%%%%%%%%%%%%
-% Your Content
-
-\section{Motivation and Question}
-
-\frame[t]{
-  \frametitle{Motivation}
-  \begin{itemize}
-  	\item Add your motivation here
-		\begin{itemize}
-			\item Maybe  with some details
-			\begin{itemize}
-				\item but not too much
-			\end{itemize}
-		\end{itemize}
-		\item Use references \textsuperscript{[Author, 2010]}
-	\end{itemize}
+\section{Boltzmann Machine}
+\frame{
+    \frametitle{What is a Boltzmann Machine?}
+    \begin{itemize}
+        \item General explanation / Buzzwords
+    \end{itemize}
 }
 
-\section{Basics and Definition}
-
-\section{Approach}
-
-\section{Results}
-
-\section{Conclusion}
-
-\frame[t]
-{
-  \frametitle{Conclusion}
-
-  Novelty and contribution of this work:
-  \begin{itemize}
-	  \item Sum up the approach
-		\item Sum op the results
-		\item ...
-		\item Show that it solves the question
-  \end{itemize}
-
-\mbox{ }
-  
-	Open Questions:
-  \begin{itemize}
-  	\item Something
-	  \item ... is always missing
-  \end{itemize}
+\frame{
+    \frametitle{How can a BM be useful?}
+    \begin{itemize}
+        \item List some applications of a BM
+    \end{itemize}
 }
 
-%%%%%%%%%%%%%%
+\frame{
+    \frametitle{A Visualisation}
+    \begin{itemize}
+        \item Image of the fully connected layers where we can explain visible/hidden layers
+            and their interaction
+    \end{itemize}
+}
+
+\section{The learning algorithm}
+\frame{
+    \frametitle{The learning algorithm 1}
+    \begin{itemize}
+        \item Explain positive/negative phase
+        \item Explain how input is handled (clamping)
+        \item What information is learned?
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{The learning algorithm 2}
+    \begin{itemize}
+        \item very short pseudocode version of learning alg?
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{The update rule}
+    \begin{itemize}
+        \item Show the stochastic update
+        \item mention async. vs. sync. and the tradeoff made there
+    \end{itemize}
+}
+
+\section{Experiments}
+\frame{
+    \frametitle{The MNIST dataset}
+    \begin{itemize}
+        \item example picture 
+        \item how did we prepare it (binary representation)
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Our experiment}
+    \begin{itemize}
+        \item Explain our experiment setup and what we wanted to show
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Results}
+    \begin{itemize}
+        \item Result graph with explanation
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Future work}
+    \begin{itemize}
+        \item What problems could we not solve
+        \item What would be interesting to investigate?
+    \end{itemize}
+}
+
+\section*{}
 
 \frame[c]{
   \frametitle{The End}
@@ -311,5 +342,71 @@
 		\item Author, and Author. \emph{Name of the Book}. Publisher, 2009
 	\end{itemize}
 }
+
+
+
+%%%%%%%%%%%%%%
+% TEMPLATE CODE
+% \section{Motivation and Question}
+%
+% \frame[t]{
+%   \frametitle{Motivation}
+%   \begin{itemize}
+%   	\item Add your motivation here
+% 		\begin{itemize}
+% 			\item Maybe  with some details
+% 			\begin{itemize}
+% 				\item but not too much
+% 			\end{itemize}
+% 		\end{itemize}
+% 		\item Use references \textsuperscript{[Author, 2010]}
+% 	\end{itemize}
+% }
+%
+% \section{Basics and Definition}
+%
+% \section{Approach}
+%
+% \section{Results}
+%
+% \section{Conclusion}
+%
+% \frame[t]
+% {
+%   \frametitle{Conclusion}
+%
+%   Novelty and contribution of this work:
+%   \begin{itemize}
+% 	  \item Sum up the approach
+% 		\item Sum op the results
+% 		\item ...
+% 		\item Show that it solves the question
+%   \end{itemize}
+%
+% \mbox{ }
+%   
+% 	Open Questions:
+%   \begin{itemize}
+%   	\item Something
+% 	  \item ... is always missing
+%   \end{itemize}
+% }
+%
+% %%%%%%%%%%%%%%
+%
+% \frame[c]{
+%   \frametitle{The End}
+% \begin{center}
+%   Thank you for your attention.\\[1ex]
+%   Any question?\\[5ex]
+% \end{center}
+%   \footnotesize
+%   Literature:
+% 	\begin{itemize}
+% 		\item Author , Author , Author, and Author. Name of the conference paper. \emph{In: Proceedings of the Conference Name}, 2008
+% 		\item Author, Author, and Author. Name of the Article. \emph{Name of the Journal}, 42:111-133, 2010
+% 		\item Author, and Author. \emph{Name of the Book}. Publisher, 2009
+% 	\end{itemize}
+% }
 
 \end{document}
