@@ -171,7 +171,6 @@
 	\vspace{3.5cm}
 	\begin{center}
 		\huge \trtitle\\
-		(DRAFT)
 	\end{center}
 	\vspace{3.5cm}
 	\begin{center}
@@ -233,9 +232,9 @@ We conclude that the Boltzmann machine is a different but interesting approach t
 \section{Introduction}
 \label{sec:intro}
 
-The idea of a Boltzmann Machine (BM) is from Ackley, Hinton and Sejnowski, 1985~\cite{Ackley}. So similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now that we have the necessary hardware, it's time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.\\
+The idea of a Boltzmann Machine (BM) is from Ackley, Hinton and Sejnowski, 1985~\cite{Ackley}. Similar to neural networks in general, the theoretical background is quite old, but could not have been used back then due to the lack of computational power. Now, that we have the necessary hardware, it is time to revive those ideas. But opposed to neural networks that are heavily used today, the BM did not gain that much attention.\\
 
-The theoretical background of the BM is inspired from physics, especially statistical mechanics. The Ising model~\cite{Ising} describes ferromagnetism with an ensemble of atoms arranged in a lattice. These atoms have spins that are described having a state $\sigma_i$ of either +1 or -1. A configuration $\sigma$ assigns a value to each of the states. The total energy of the system can be described by its Hamiltonian $H(\sigma)$ that is based on the configuration and considers interactions between atoms and a possible external magnetic field. The interactions are usually modeled between neighbors on the lattice only. The probability $P(\sigma)$ that the system is in a certain configuration $\sigma$ is described by the Boltzmann distribution
+The theoretical background of the BM is inspired by physics, especially statistical mechanics. The Ising model~\cite{Ising} describes ferromagnetism with an ensemble of atoms arranged in a lattice. These atoms have spins that are described having a state $\sigma_i$ of either +1 or -1. A configuration $\sigma$ assigns a value to each of the states. The total energy of the system can be described by its Hamiltonian $H(\sigma)$ that is based on the configuration and considers interactions between atoms and a possible external magnetic field. The interactions are usually modeled between neighbors on the lattice only. The probability $P(\sigma)$ that the system is in a certain configuration $\sigma$ is described by the Boltzmann distribution
 $$P(\sigma) \propto e^{-\frac{H(\sigma)}{k_BT}}$$
 where $T$ is the temperature and $k_B$ is the Boltzmann constant. To achieve such a distribution by simulation on the lattice, the Metropolis algorithm~\cite{Metropolis} can be used. This randomly chooses lattice points and calculates the energy if the state was flipped. If the new energy is lower, the state is accepted. Otherwise the higher energy state is accepted with probability $p$ based on the energy difference $\Delta E$ and the temperature.
 $$p = e^{-\frac{\Delta E}{k_BT}}.$$
@@ -245,7 +244,7 @@ These states don't have to be atom spins and this principle could be applied to 
 \section{Related Work}
 \label{sec:related}
 
-The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas a Hopfield networks does not have hidden units, this is the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
+The BM is not the only neural network based on the physics model. There is also the earlier idea of a Hopfield network~\cite{Hopfield}\cite[Chapter~13]{Rojas}\cite[Chapter~43]{MacKay}. Whereas Hopfield networks do not have hidden units, this is the case for a BM. So a BM can also be considered to be a successor to a Hopfield network.
 
 Being based on the theoretical background of the original BM paper from Ackley, Hinton and Sejnowski~\cite{Ackley}, we provide an implementation in Python. Our code is similar to and based on the code by Cartas~\cite{BMImpl}, but we tried to optimize that code, make it more flexible by parameterization and add a new feature, the synchronous update.
 
@@ -255,7 +254,7 @@ In opposition to most recent work like Salakhutdinov, Mnih and Hinton~\cite{Sala
 \section{Boltzmann Machine}
 \label{sec:bm}
 
-In this chapter we will give a general explanation of the BM based on~\cite{Ackley} and~\cite[Chapter~43]{MacKay}. We will go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
+In this chapter, we give a general explanation of the BM based on~\cite{Ackley} and~\cite[Chapter~43]{MacKay}. We go into the structure of the network, how the learning and recall phases work and talk about the differences between the asynchronous and synchronous update procedures.
 
 The BM is a stochastic recurrent neural network with symmetrical connections.
 Rojas~\cite[Chapter~14]{Rojas} provides an introduction to stochastic networks.
@@ -264,35 +263,33 @@ A BM is used to extract key features from given training data by unsupervised le
 \begin{figure}[h]
 	\centering
 	\includegraphics[height=0.2\textheight]{src/boltzmann_graph}
-	\caption[Representation of a small Boltzmann machine]{Representation of a small Boltzmann machine\footnotemark}
+	\caption[Representation of a small Boltzmann machine]{Representation of a small Boltzmann machine~\cite{Boltzmannexamplev1}}
     % https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Boltzmannexamplev1.png/330px-Boltzmannexamplev1.png
 	\label{fig:boltzmann-graph}
 \end{figure}
-\footnotetext{Image: Sunny vd, \url{https://commons.wikimedia.org/wiki/File:Boltzmannexamplev1.png}}
 
 \noindent
-In \cref{fig:boltzmann-graph} we can see the structure of a small BM. It consists of two layers of units which are called the visible and hidden layer.
-All units in the BM are fully connected with symmetrical weights, which means that value of the weight from units A to B is identical to
-the weight from units B to A. All units in a BM have a binary state of either one or zero, indicating if they are currently activated or not.
+In \cref{fig:boltzmann-graph} we can see the structure of a small BM. It consists of two layers of units which are called the visible (v) and hidden (h) layer.
+All units in the BM are fully connected with symmetrical weights, which means that value of the weight from any units A to B is identical to
+the weight from B to A. All units in a BM have a binary state of either one or zero, indicating if they are currently activated or not.
 The weights can take any positive or negative real value.
 
-The BM is used for unsupervised learning and has no clear output layer. The visible layer is used during training to hold the input data and
+The BM is used for unsupervised learning and has no strictly defined output layer. The visible layer is used during training to hold the input data and
 after learning the free running phase of the machine creates a binary vector of the states of the visible units which can be seen as the output.
 The general idea behind the BM is to feed it with binary input vectors from the training dataset during the learning phase
 in which the network learns the probability distribution of the set input units, which will enable it to reproduce patterns of visible units
-that will match the learned probability distribution in its recall phase. A clearer explanation of the learning and recall phases follows in the 
-later sections of this chapter.
+that will match the learned probability distribution in its recall phase. A detailed explanation of the learning and recall phases follows.
 
 
-\subsection{The learning phase}
-Before we get into the learning algorithm of the BM, we need to introduce the concept of 'clamped' and 'unclamped' units.
+\subsection{Learning Phase}
+Before we present the learning algorithm of the BM, we need to introduce the concept of 'clamped' and 'unclamped' units.
 As mentioned before, during the learning phase the visible units are set to the values of the binary input vectors from the training data.
-This procedure is called 'clamping' the visible units, which means that during the positive phase of the learning
-algorithm, the states of these units will not change and they will influence the computed states for the hidden units.
+This procedure is called 'clamping' the visible units. This means, that during the positive phase of the learning
+algorithm, the states of these units will not change and they will influence the computed states of the hidden units.
 
-In \cref{fig:learning-alg} we can see the basic learning algorithm of the BM in pseudo code form.
-The code in the figure is a simplified version of the algorithm from Cartas~\cite{BMImpl}.
-To best explain the algorithm we are going to divide it into four logical parts.
+In \cref{fig:learning-alg} we present pseudo code for the basic learning algorithm.
+This is a simplified version of the algorithm from Cartas~\cite{BMImpl}.
+To best explain the algorithm, we are going to divide it into four logical parts: Setup Phase, Positive Phase, Free-Running Phase and Updating Weights.
 
 \begin{figure}[p]
 \begin{lstlisting}[escapeinside={(*}{*)}]
@@ -348,23 +345,23 @@ COLLECT-STATISTICS():
 \end{figure}
 
 \begin{enumerate}
-    \item \textbf{The setup phase:}\newline
-        Before the learning algorithm can start, we need to set up some parameters. Firstly the weight matrix is initialized with zeros.
-        The choice of zero, instead of an initialization with random values as it is often done for other neural networks, is
-        necessary here since the weights need to be symmetric for all pairs of units as described in the introduction part of this chapter.
-        The next thing to do is setting values for the temperature, learning and co-occurrence epochs. 
+    \item \textbf{Setup Phase:}\newline
+        Before the learning algorithm can start, we need to set up some parameters. Firstly, the weight matrix is initialized with zeros.
+        Intentionally we do not initialize with random values, as it is often done for other neural networks. This is
+        necessary, since the weights need to be symmetric for all pairs of units.
+        The next thing to do, is setting values for the temperature, learning and co-occurrence epochs. 
         The learning and co-occurrence epochs parameters will be explained in the description of the following phases.\newline
-        From here on the algorithm can begin. The first thing we can see in line 4 is that the whole learning procedure (the next three steps) is
+        After that the core algorithm starts. The first thing we can see in line 4 is that the whole learning procedure (the next three steps) is
         supposed to be executed until the values of the weight matrix have converged and no more changes are observed.
         From a theoretical point of view this happens when the equilibrium state has been reached.
-        In our practical implementation the while loop is replaced by a for loop with an iteration counter that can be set before the learning process.
-    \item \textbf{The positive phase:}\newline
+        In practical implementations the while loop can be replaced by a for loop with a fixed number of iterations.
+    \item \textbf{Positive Phase:}\newline
         The actual learning algorithm starts with the so called positive phase. In this phase the given input patterns are learned.
         First the units of the visible layer are set to the values of the current input vector and all visible units are clamped.
         All unclamped units (in this case the units of the hidden layer) are initialized with random binary values.
         Now the actual updating of the states takes place by calling the update function as many times as the learning epochs variable has been set to.
         This is another parameter that has to be set before the start of the learning algorithm and which has to be tuned to fit the problem.\newline
-        In the update function the stochastic update of the states of the unclamped units takes place. The update calculations are done
+        In the update function, the stochastic update of the states of the unclamped units takes place. The update calculations are done
         step-by-step for randomly chosen unclamped units. This version of the update procedure is called asynchronous and we will
         compare it to another possible version called the synchronous update, where the updates do not take place in order
         but are computed all at once in \cref{subsec:updating-procedures}.\newline
@@ -390,20 +387,20 @@ COLLECT-STATISTICS():
         the 'updating the weights' segment.
 
 
-    \item \textbf{The free-running phase:}\newline
+    \item \textbf{Free-Running Phase:}\newline
         After the positive phase the negative or 'free-running' phase starts. This phase is different to the positive phase in the fact that
-        now all units of both layers are treated as unclamped. This means that also the visible layers units states can now be updated.
-        Since no more input patterns are given to the visible layer all units are now initialized with a random binary value and
-        the network is run freely. In this phase the previously learned information, which is stored in the weights 
-        is analyzed by the network and found correlations between for example two connected units often being active at the
+        now all units of both layers are treated as unclamped. This means that also the visible layers units states can be updated.
+        Since no more input patterns are given to the visible layer all units are initialized with a random binary value and
+        the network is run freely. In this phase, the previously learned information, which is stored in the weights, 
+        is analyzed by the network. Found correlations between for example two connected units often being active at the
         same time are strengthened. The process of finding a more optimal low energy state mainly occurs in this phase.\newline
-        The free-running phase is also later used to produce the output patterns of the Boltzmann machine that a user will
+        The free-running phase is also later used to produce the output patterns of the BM that a user will
         look at when applying the network on a real problem.
 
-    \item \textbf{Updating the weights:}\newline
+    \item \textbf{Updating Weights:}\newline
         The updating of the weights during the learning phase is done by comparing statistics of so called co-occurring units in the positive
         and in the negative phase. A co-occurrence is the case that two units $i,j$ connected by a weight $w_{ij}$ are both observed in the
-        state $1$. In the pseudo code of the algorithm these co-occurrences are summed up in the vector $S_{ij}$, where the field $ij$ is increased
+        state $1$. In the pseudo code of the algorithm these co-occurrences are summed up in the vector $S_{ij}$ (line 45), where the field $ij$ is increased
         by one every time the units $i,j$ have both been observed in the state $1$.
         Since we are dealing with a stochastic process here it is necessary to collect these statistics over multiple epochs and to average
         the results afterwards. This can be seen at the definitions of the $P^+_{ij}$ and $P^-_{ij}$ variables.\newline
@@ -422,7 +419,7 @@ COLLECT-STATISTICS():
         are co-occurring more often than in the positive phase this does not represent the learned data properly and
         the probability of this co-occurrence has to be decreased by a corresponding change of weights.\newline
         This whole process of collecting the co-occurrence statistics and then updating the weights is done for
-        every iteration of the learning algorithm. It should in the end lead to a network that in its free-running
+        every iteration of the learning algorithm. It leads to a network that in its free-running
         phase will produce visible layer patterns that represent the distribution of the learned input patterns
         as closely as possible.
 
@@ -431,17 +428,16 @@ COLLECT-STATISTICS():
 
 %\todo{summarize the algorithm, alternating positive/negative phase...}
 \noindent
-Finally the learning phase iterates in a loop over positive phase, the free-running phase and updating the weights. In theory this should be done until the weights converged. In practice the number of iterations will be fixed to guarantee termination within a reasonable time frame.
+Finally, the learning phase iterates in a loop over positive phase, the free-running phase and updating the weights. In theory this should be done until the weights converged. In practice the number of iterations will be fixed to guarantee termination within a reasonable time frame.
 
 
-\subsection{The recall phase}
+\subsection{Recall Phase}
 \label{subsec:recall}
 
-What we will call the recall phase in this paper describes using the previously trained BM to create output patterns.
-As we have already discussed the BM only consists of one visible and one hidden layer and does not have a clear output
-layer like many other commonly used neural networks. Therefore the so called outputs of the machine are considered as the patterns
+What we call the recall phase in this paper, describes using the previously trained BM to create output patterns.
+As the BM does not have an output layer defined, the so called outputs of the machine are considered as the patterns
 in the visible layer which are created when a free-running phase is started on the trained network.
-There are multiple ways in which one can use this recall to produce meaningful results. The simplest one is to just let the
+There are multiple ways in which we can use this recall to produce meaningful results. The simplest one is to just let the
 machine run a few epochs in a free-running phase with all units being unclamped. In this configuration the basic idea behind the
 BM comes through and the different resulting patterns in the visible layer and their probability of occurrence should
 resemble the probability distribution of the learned input data. For example if the network is trained with a dataset
@@ -449,11 +445,11 @@ that contains one specific pattern five times and another pattern only once the 
 pattern should be five times as high as the probability of producing the second pattern. Due to the stochastic nature of the BM
 it is of course more likely that the resulting patterns from the recall might not exactly match one of the two inputs
 but only closely resembles them. This behavior of course gets more common as the size of the input data increases.
-With this use case we can already see how the BM could be used to extract key features from input datasets.
+With this use case, we can already see how the BM could be used to extract key features from input datasets.
 The results might not reproduce one distinct input but they should with high probability create an output that strongly
 features commonalities between the different inputs.
 
-A different approach of using the recall phase is to not start a completely free-running phase but to also add some incomplete
+A different approach of using the recall phase is not to start a completely free-running phase but to also add some incomplete
 input data to the visible layer. This can be achieved by setting the states of some visible units to fixed values and then 
 clamping those units before executing the update procedure. A simple example for this is the reconstruction of images
 with broken or missing pixels. A BM is first trained with a set of images and in the recall phase
@@ -462,7 +458,7 @@ The rest of the visible layer and the whole hidden layer are left unclamped and 
 After running for a few epochs the resulting states of the visible layer are taken as the outputs and they should
 resemble a reconstructed version of the whole image with good probability.
 
-One last version of using the recall phase is to create an artificial output layer for the network by dividing the visible layer
+A final use case for the recall phase is to create an artificial output layer for the network by dividing the visible layer
 into two distinct parts at the creation of the network. This has for example been done in the original paper on the BM~\cite{Ackley}. 
 Here the task was to solve a simple pattern matching problem called 'the encoder problem'.
 Without going into too much detail the idea was that there are input patterns of $n$ bits that match to specific output
@@ -471,9 +467,9 @@ At creation the visible layer is divided into two $n$ unit layers which will not
 connections inside themselves and to the hidden layer. The input layer so to speak communicates with the output layer
 through the hidden layer. This approach could probably also be used to solve classification problems but it
 is questionable if the BM would be a good choice for this since there exist a lot of other 
-networks and algorithms which solve these problems more efficiently.\newline
+networks and algorithms which solve these problems more efficiently.
 
-After describing the different possible use cases for the recall procedure we will now take a short look at 
+After describing the different possible use cases for the recall procedure we take a look at 
 the recall algorithm. The algorithm itself is not much different from the 
 procedures we have already seen in the learning section. The basic idea is to just run the update function
 for a given number of epochs in a free-running phase and to then return the resulting states of the
@@ -483,7 +479,7 @@ All unclamped units are initialized with random binary values and the update pro
 and returns the whole visible layer as output at some point.
 
 
-\subsection{Asynchronous vs. synchronous updating}
+\subsection{Asynchronous vs. Synchronous Updating}
 \label{subsec:updating-procedures}
 
 One of the disadvantages of the original version of the BM is its computational efficiency.
@@ -523,8 +519,8 @@ Here the calculations for the state updates are
 all done in one step on all unclamped units. This at least in theory introduces some inaccuracies.
 It is however not clear whether these inaccuracies have a strong impact on the practical use of the
 BM and the use of the synchronous update procedure provides the big advantage of
-being parallelizable. In the implementation and results parts of this paper we will
-compare both of these update procedures and try to give qualitative metrics to measure
+being parallelizable. In the implementation and results parts of this paper, we will
+compare both of these update procedures and apply qualitative metrics to measure
 the impact of using the synchronous update over the asynchronous one.
 
 
@@ -532,20 +528,21 @@ the impact of using the synchronous update over the asynchronous one.
 \section{Implementation}
 \label{sec:impl}
 
-Based on the Python implementation from Cartas~\cite{BMImpl}, we generalized to allow some more flexibility by parameterization. Also we replaced a lot Python \textit{for}-loops with equivalent expressions using NumPy functions, in order to speed up the execution. As a new feature the choice between synchronous and asynchronous update method is introduced.
+Based on the Python implementation from Cartas~\cite{BMImpl}, we generalize to allow some more flexibility by parameterization. Also we replace Python \textit{for}-loops with equivalent expressions using NumPy functions, in order to speed up the execution. As a new feature the choice between synchronous and asynchronous update method is introduced.
 
-The idea was to bring the BM to the current world of neural networks, that offers frameworks like TensorFlow\footnote{\url{https://www.tensorflow.org}} or PyTorch\footnote{\url{https://pytorch.org}}. But the BM is a stochastic neural network, uses its own energy-based minimization process and does not use activation functions or backpropagation. The BM would not utilize any of the builtin tools these frameworks offer, and thus is hard to integrate. 
+The idea is to bring the BM to the current world of neural networks, that offers frameworks like TensorFlow\footnote{\url{https://www.tensorflow.org}} or PyTorch\footnote{\url{https://pytorch.org}}. But the BM is a stochastic neural network, uses its own energy-based minimization process and does not use activation functions or backpropagation. The BM would not utilize any of the builtin tools these frameworks offer, and thus is hard to integrate. 
 
-Finally we tried to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls was not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.\newline
+% we did not achieve, we can skip that paragraph
+% Finally we try to use TensorFlow just for its access to GPU computation, leaving the idea of a proper integration behind. The approach to replace the NumPy calls by their corresponding TensorFlow calls is not that straight forward. We achieved some progress, but the full task could not be completed within the time frame of this seminar.
 
-Our final implementation of the Boltzmann machine can be found on GitHub\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}}. We tried to make it as generalized as possible
+Our final implementation of the Boltzmann machine can be found on GitHub\footnote{\url{https://github.com/oliver-pola/BoltzmannMachine}}. We try to make it as generalized as possible
 so that our Boltzmann python class can be used quite easily on all kinds of problems that one might use a BM for. The final code has a low number of dependencies and should be
-easy to use. It is almost purely build with the use of NumPy, which should be easy to install for any user.
+easy to use. It is built with the use of NumPy, which is easy to install for any user.
 At the creation of a Boltzmann class instance a list of free parameters can be adjusted to fit the current use case:
 \begin{itemize}
-    \item \textbf{Size of visible layer}: This should simply be set to the size of the input patterns that will be learned
-    \item \textbf{Size of hidden layer}: A free parameter that
-        has to be tuned to the problem. In our tests we could
+    \item \textbf{Visible Layer Size}: This should simply be set to the size of the input patterns that will be learned
+    \item \textbf{Hidden Layer Size}: A free parameter that
+        has to be tuned to the problem. In our tests we do
         not find a good general recommendation for the size
         of the hidden layer in respect to the visible layer size.
         Intuitively the hidden layer should be as as large as possible to allow 
@@ -554,25 +551,25 @@ At the creation of a Boltzmann class instance a list of free parameters can be a
         probably be set close to the size of the visible layer to make good use of it and
         at the same time not cause too much of an increase in the runtime.
 
-    \item \textbf{Size of output layer(optional)}: This is an optional
-        Argument which in the general use case can just be set to zero.
-        The function of an so called output layer is to allow use cases as
+    \item \textbf{Output Layer Size}: This is an optional
+        argument which can be set to zero, if not needed.
+        The function of a so called output layer is to allow use cases as
         for example the encoder-problem which was described in \cref{subsec:recall}, where
         the visible layer needs to be split into two parts that are not interconnected.
-    \item \textbf{Annealing schedule}: This argument expects a list of tuples of the form
+    \item \textbf{Annealing Schedule}: This argument expects a list of tuples of the form
         \lstinline{(<temperature>, <epochs>)}. These are the values for temperature and the
         number of epochs which will be used in the learning phase of the BM.
         In the general case a single tuple should suffice here but our implementation also
         supports the so called annealing method for learning where the learning phase
         is started with a high temperature which is then slowly decreased over time.
-    \item \textbf{Co-occurrence schedule}: This argument again takes a tuple of the form
+    \item \textbf{Co-occurrence Schedule}: This argument again takes a tuple of the form
         \lstinline{(<temperature>, <epochs>)}. This is the temperature and number of
         epoch which is spend in the \lstinline{COLLECT-STATISTICS} part of the
         learning algorithm. The temperature chosen here should match the learning
         temperature in most cases but the number of epochs can differ since we
         only need enough epochs to get meaningful values for the update-weights
         part of the learning algorithm.
-    \item \textbf{Synchronous update flag}: Lastly it can be decided if the asynchronous or
+    \item \textbf{Synchronous Update}: Lastly it can be decided if the asynchronous or
         synchronous update procedure should be used.
 \end{itemize}
 
@@ -604,13 +601,13 @@ with the code that was used to create the results in \cref{sec:results}.
 
 To apply the BM on a simple but not too minimalistic problem, we use the MNIST dataset\footnote{\url{http://yann.lecun.com/exdb/mnist/}}~\cite{MNIST} containing $60000$ images of handwritten digits with labels. Each image is $28 \times 28$ pixels with grayscale values. Scaling the values to $[0,1]$ would be a good example for using the pixel values as continuous state data. But so far the BM is made for binary states and we applied the midrange threshold to get $\{0, 1\}$ pixel states.
 
-The experiment and its results are presented in two steps. First we show a single use case of the BM in \cref{subsec:recall}. And second, in \cref{subsec:meta}, a search in the parameter space is performed. This shows different outcomes, after training the BM again and repeating the previous experiment.
+The experiment and its results are presented in two steps. First, we show a single use case of the BM in \cref{subsec:recall}. And second, in \cref{subsec:meta}, a search in the parameter space is performed. This shows different outcomes, after training the BM again and repeating the previous experiment.
 
 
-\subsection{Recall digit pixels}
+\subsection{Recalling Digit Pixels}
 \label{subsec:recall}
 
-From all the digits we picked only the digits 3, 4 and 5 and only a few examples in total. Then we trained the BM on this subset, having one input for each pixel and no output.
+From all the digits we pick only the digits 3, 4 and 5 and only a few examples in total. Then we train the BM on this subset, having one input for each pixel and no output.
 The size of the hidden layer is chosen to be equal to the input layer. The hidden layer is an important feature of the BM in opposition to a Hopfield network. The chosen size should provide the BM with some learning capacity, but due to time restrictions this parameter is not further evaluated.
 
 \begin{figure}[t!]
@@ -623,12 +620,12 @@ The size of the hidden layer is chosen to be equal to the input layer. The hidde
 	\includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.8\textwidth]{src/test_restore_100_images}
 	\end{center}
 	\caption{Restoring MNIST digits after a) 10, b) 100 images were learned}\label{fig:test_restore}
-	\footnotesize The BM did learn the sample digit 3 to restore, but also did learn other versions of the digit 3 and digits 4, 5 as well. From that sample the lower half is deleted and then restored by the BM. In a) we can see a successful restore of the pattern. The result of b) is not satisfactory.
+	\footnotesize The BM  learns the sample digit 3 to restore, but also learns other versions of the digit 3 and digits 4, 5 as well. From that sample the lower half is deleted and then restored by the BM. In a) we can see a successful restore of the pattern. The result of b) is not satisfactory.
 \end{figure}
 
 The chosen total amount of epochs and the temperature are based on the evaluation in \cref{subsec:meta}. The other meta-parameters are based on examples~\cite{BMImpl} and on small exploratory sample runs, but not evaluated in detail.
 
-To test if the BM is able to recognize the shown patterns, we picked one of the shown digits, deleted the bottom half of it and used the BM to restore the missing pixels. We tried the recall multiple times and computed the average of the results to get an idea about the distribution. We always used the same sample and deleted the same pixels, so that the task does not vary in difficulty, knowing that the BM is unable to exploit that.
+To test if the BM is able to recognize the shown patterns, we pick one of the shown digits, delete the bottom half of it and use the BM to restore the missing pixels. We try the recall multiple times and compute the average of the results to get an idea about the distribution. We always use the same sample and delete the same pixels, so that the task does not vary in difficulty, knowing that the BM is unable to exploit that.
 
 Figure~\ref{fig:test_restore} shows the distributions of the input images and the results of the recalled half pattern. 
 If only 10 different images are used for training during 100 iterations, the restored digit can be identified very well, although it is not exactly the missing half.
@@ -638,7 +635,7 @@ One reason might be if the variations differ too much, but the mean over the sho
 We also can see that there is not much variation in calling recall more than once and almost the same output seems to be given each time. This means the restored pattern is a stable outcome, pretty well defined by the data distribution and the given input.
 
 
-\subsection{Meta-parameter evaluation}
+\subsection{Meta-Parameter Evaluation}
 \label{subsec:meta}
 
 Having seen a good result from the experiment with 10 images in \cref{subsec:recall}, that same set of meta-parameters is now used as a base for further analysis on the learning phase.
@@ -678,10 +675,10 @@ Another set of parameters might be the sweet spot for the asynchronous update to
 \section{Discussion}
 \label{sec:discuss}
 
-As we have seen in this paper the Boltzmann machine is a very interesting approach for machine learning but it does not come without its drawbacks.
+As we have seen in this paper the BM is a very interesting approach for machine learning but it does not come without its drawbacks.
 The BM offers itself to do a variety of different experiments that one might not be able to do with more classical neural networks and it especially
-sets itself apart with its stochastic nature. On the other end however the main concern with the BM is still the runtime.
-Even using the synchronous update method our small experiments took a long time to run, even though the size of our data was by no means big.
+sets itself apart with its stochastic nature. On the other end, however, the main concern with the BM is still the runtime.
+Even using the synchronous update method, our small experiments took a long time to run, even though the size of our data was by no means big.
 In its current form it would be infeasible for our implementation to run experiments on datasets of thousands of pictures or even pictures with
 a lot of pixels. The performance of our current implementation could hopefully be improved in future by enabling it to run fully
 parallelized on GPUs. As previously mentioned we tried to integrate our learning algorithm in a modern machine learning framework 
@@ -715,7 +712,7 @@ it for actual real world problems it would require a lot more experiments and st
 %(May be covered in the final version of this paper)\\
 
 %\noindent
-The BM as it was defined and used in this paper is only applicable to static discrete data. As already mentioned when using the MNIST images, we therefor had to adjust or pixel values in range $[0,255]\cap\mathbb{N}$ to be binary $0$ or $1$ via threshold. It would be nice to directly use values in continuous range $[0,1]$ instead. Where we currently set the new state to $1$ with probability $p$, this could be achieved by directly setting the new state to $p$. The other parts of the algorithm then need to be adapted as well.
+The BM as it was defined and used in this paper is only applicable to static discrete data. As already mentioned when using the MNIST images, we therefor had to adjust the pixel values from range $[0,255]\cap\mathbb{N}$ to be binary $0$ or $1$ via threshold. It would be nice to directly use values in continuous range $[0,1]$ instead. Where we currently set the new state to $1$ with probability $p$, this could be achieved by directly setting the new state to $p$. The other parts of the algorithm then need to be adapted as well.
 
 As the BM is a recurrent neural network, a proper application seems to be time series data. This also seems to be where the Restricted BM is applied, that we have chosen not to cover in this paper. But it might to be possible to adapt the general BM to this task as well.
 
@@ -723,13 +720,13 @@ As the BM is a recurrent neural network, a proper application seems to be time s
 \section{Conclusion}
 \label{sec:concl}
 
-In this paper we introduced the Boltzmann machine. We have seen a very different approach to neural networks which is not exactly new but 
+In this paper we introduced the BM. We have seen a very different approach to neural networks which is not exactly new but 
 has not had the same prominence as the more commonly used networks in modern machine learning. 
 The stochastic nature of the BM makes it very interesting for further studies and, if the performance problems can be mitigated 
 a bit better than in our implementation, the BM definitely has its use cases in the field.
 
 This seminar topic was mostly focused on the implementation and experiment aspects but with this paper we tried to
-bring the reader a good understanding of the core concept of the Boltzmann machine and how it could be used in practice.
+bring the reader a good understanding of the core concept of the BM and how it could be used in practice.
 
 We have also highlighted some of the problems we encountered when applying the BM on actual problems.
 As mentioned in \cref{sec:discuss} the long runtimes and difficult adjustments of all parameters proofed to be the most
@@ -738,8 +735,8 @@ challenging aspects.
 We also saw a lot of possible future improvements like extending the BM to work with continuous values or time series data
 which are beyond the scope of this seminar.
 
-In conclusion we can say that the Boltzmann machine is a very different but interesting approach to machine learning
-but further study is still needed to unlock more of its potential.
+In conclusion we can say that the BM is very different from other neural networks, but an interesting approach to machine learning.
+Further study is still needed to unlock more of its potential.
 
 
 
@@ -753,6 +750,7 @@ but further study is still needed to unlock more of its potential.
 \newpage
 \bibliographystyle{plain}
 \addcontentsline{toc}{section}{Bibliography}% Add to the TOC
+\small
 \bibliography{bib}
 
 \end{document}
