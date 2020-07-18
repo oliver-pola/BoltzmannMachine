@@ -207,7 +207,7 @@ Whereas most recent publications deal with the restricted Boltzmann machine, in 
 We describe the concept and the learning algorithm in detail, arranged in multiple phases: setup, positive (using the inputs), free-running (let loose the inputs) and updating the weights.
 After the Boltzmann machine is trained, its application uses a recall phase, where it can produce output according to the distribution of inputs it has seen.
 These phases need a lot of computations and thus the training runs for a long period.
-One approach to improve the performance is to replace the asynchronous update, used in the concept, by a synchronous update that we do implement.
+One approach to improve the efficiency is to replace the asynchronous update, used in the concept, by a synchronous update that we do implement.
 With an experiment based on images of handwritten digits from the MNIST dataset, we show that our implementation is able to recall a certain pattern among multiple trained ones.
 Our results include an evaluation, how the number of epochs during training does influence the quality of the results.
 Another parameter, the generalized concept of temperature, is analyzed.
