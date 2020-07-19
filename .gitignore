@@ -144,3 +144,4 @@ paper/*.*
 !paper/*.tex
 !paper/*.bib
 !paper/src/*
+!paper/boltzmann_machine_paper.pdf
