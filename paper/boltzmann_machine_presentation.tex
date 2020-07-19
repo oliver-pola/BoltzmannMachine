@@ -251,44 +251,60 @@
 \frame{
     \frametitle{What is a Boltzmann Machine?}
     \begin{itemize}
-        \item General explanation / Buzzwords
+        \item A stochastic recurrent neural network 
+        \item Background in physics/mathematics (Boltzmann distribution)
+        \item Unsupervised learning
     \end{itemize}
 }
 
 \frame{
     \frametitle{How can a BM be useful?}
     \begin{itemize}
-        \item List some applications of a BM
+        \item A BM learns the probability distribution of observed data
+        \item Possible use cases:
+            \begin{itemize}
+                \item Accurately show probability distribution of input data
+                \item Extract key features from datasets
+                \item Reconstruction of partially broken input data 
+            \end{itemize}
     \end{itemize}
 }
 
 \frame{
     \frametitle{A Visualisation}
-    \begin{itemize}
-        \item Image of the fully connected layers where we can explain visible/hidden layers
-            and their interaction
-    \end{itemize}
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{"src/boltzmann_graph.png"}
+    \end{center}
 }
 
 \section{The learning algorithm}
 \frame{
     \frametitle{The learning algorithm 1}
     \begin{itemize}
-        \item Explain positive/negative phase
-        \item Explain how input is handled (clamping)
-        \item What information is learned?
+        \item During learning alternating positive and a negative phases are run
+        \item Input data is clamped to the visible layer
+        \item Termination when equilibrium state has been reached
     \end{itemize}
 }
 
-\frame{
+\begin{frame}[fragile]
     \frametitle{The learning algorithm 2}
-    \begin{itemize}
-        \item very short pseudocode version of learning alg?
-    \end{itemize}
-}
+    \begin{lstlisting}
+    SET temperature T
+    SET weight matrix W = 0
+
+    WHILE W continues to change DO:
+        FOR EACH training pattern x:
+            RUN positive phase
+
+        RUN negative (free-running) phase
+
+        RUN update weights
+    \end{lstlisting}
+\end{frame}
 
 \frame{
-    \frametitle{The update rule}
+    \frametitle{The update rule (TODO)}
     \begin{itemize}
         \item Show the stochastic update
         \item mention async. vs. sync. and the tradeoff made there
