@@ -298,23 +298,57 @@
 \section{Experiments}
 \frame{
     \frametitle{The MNIST dataset}
-    \begin{itemize}
-        \item example picture 
-        \item how did we prepare it (binary representation)
-    \end{itemize}
+    \begin{columns}
+	\begin{column}{0.4\textwidth}
+	    \begin{itemize}
+	        \item Handwritten digits 
+	        \item $28 \times 28$ pixel images
+	        \item Grey values
+	    	\vspace{5mm}
+	        \item We need: binary pixels
+	        \item Threshold applied
+	    \end{itemize}
+	\end{column}
+	\begin{column}{0.6\textwidth}
+	    \begin{center}
+	     \includegraphics[trim={0cm 1.0cm 0cm 0cm},clip,width=0.95\textwidth]{src/mnist_dataset}
+	     \vspace{0.8cm}
+	     \end{center}
+	\end{column}
+    \end{columns}
 }
 
 \frame{
     \frametitle{Our experiment}
+    \includegraphics[trim={0cm 1cm 0cm 1.5cm},clip,width=\textwidth]{src/test_restore_10_images}
     \begin{itemize}
-        \item Explain our experiment setup and what we wanted to show
+        \item Train BM on a subset of images (4$\times$'3', 4$\times$'4', 3$\times$'5')
+        \item Take one image, destroy bottom half, let BM restore that
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Expansion}
+    \includegraphics[trim={0cm 1cm 0cm 1.5cm},clip,width=\textwidth]{src/test_restore_100_images}
+    \begin{itemize}
+        \item Use more images (37$\times$'3', 35$\times$'4', 28$\times$'5')
+        \item Although 3's are similar, it seems difficult to recall distribution
     \end{itemize}
 }
 
 \frame{
     \frametitle{Results}
+    \includegraphics[trim={0.1cm 0.3cm 0cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_epochs}
     \begin{itemize}
-        \item Result graph with explanation
+        \item Scan over meta-parameter: Number of training epochs
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Results}
+    \includegraphics[trim={0.1cm 0.3cm 0.4cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_temperature}
+    \begin{itemize}
+        \item Scan over meta-parameter: Temperature
     \end{itemize}
 }
 

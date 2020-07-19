@@ -86,3 +86,23 @@ def vec2im(vectors):
 
 def im2binary(images):
     return (images > 0.5) * 1.0
+
+
+def test():
+    images, labels = get_data()
+    plt.rcParams.update({'font.size': 11})
+    plt.figure('MNIST dataset', figsize=(6, 4))
+    plt.subplot(121)
+    plt.imshow(images[3,:,:], cmap='gray')
+    plt.xticks([0,27])
+    plt.yticks([0,27])
+    plt.subplot(122)
+    plt.imshow(images[5,:,:], cmap='gray')
+    plt.xticks([0,27])
+    plt.yticks([])
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == '__main__':
+    test()
