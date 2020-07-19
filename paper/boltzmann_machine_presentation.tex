@@ -337,26 +337,33 @@
 }
 
 \frame{
-    \frametitle{Results}
+    \frametitle{Tuning number of training epochs}
     \includegraphics[trim={0.1cm 0.3cm 0cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_epochs}
+    \vspace{-5mm}
     \begin{itemize}
-        \item Scan over meta-parameter: Number of training epochs
+        %\item Scan over meta-parameter: Number of training epochs
+        \item Very stable convergence for the synchronous update
     \end{itemize}
 }
 
 \frame{
-    \frametitle{Results}
+    \frametitle{Tuning temperature}
     \includegraphics[trim={0.1cm 0.3cm 0.4cm 0cm},clip,width=\textwidth]{src/test_restore_quality_10_images_vary_temperature}
+    \vspace{-5mm}
     \begin{itemize}
-        \item Scan over meta-parameter: Temperature
+        %\item Scan over meta-parameter: Temperature
+        \item Unstable, very hard to tune this parameter (and others) % could have 2 sentences about conclusion here
     \end{itemize}
 }
 
 \frame{
     \frametitle{Future work}
     \begin{itemize}
-        \item What problems could we not solve
-        \item What would be interesting to investigate?
+    	\item Implement with a modern framework (TensorFlow, PyTorch)
+    	\item Speed up the computation (GPU computing)
+    	\vspace{5mm}
+        \item Especially for images: Continuous instead of binary data
+        \item Typical use case for recurrent networks: Time series data
     \end{itemize}
 }
 
