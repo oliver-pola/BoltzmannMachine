@@ -253,6 +253,10 @@
     \begin{itemize}
         \item A stochastic recurrent neural network 
         \item Background in physics/mathematics (Boltzmann distribution)
+            \begin{itemize}
+                \item A probability distribution for the state of a system
+                    depending on the system's temperature and the state's energy
+            \end{itemize}
         \item Unsupervised learning
     \end{itemize}
 }
@@ -272,8 +276,12 @@
 
 \frame{
     \frametitle{A Visualisation}
+    \begin{itemize}
+        \item fully connected, symmetrical weights
+        \item binary values in layers
+    \end{itemize}
     \begin{center}
-        \includegraphics[width=0.4\textwidth]{"src/boltzmann_graph.png"}
+        \includegraphics[width=0.3\textwidth]{"src/boltzmann_graph.png"}
     \end{center}
 }
 
@@ -303,13 +311,21 @@
     \end{lstlisting}
 \end{frame}
 
-\frame{
-    \frametitle{The update rule (TODO)}
-    \begin{itemize}
-        \item Show the stochastic update
-        \item mention async. vs. sync. and the tradeoff made there
-    \end{itemize}
-}
+\begin{frame}[fragile]
+    \frametitle{The update rule}
+    \begin{lstlisting}[escapeinside={(*}{*)}]
+    ...
+    FOR 1 to number of unclamped units:
+      randomly select an unclamped unit i
+      #Calculate its energy difference: 
+      (*$ \Delta E_i = \sum_j W_{ij} x_j $*)
+      #Stochastically decide the resulting state
+      IF random uniform (*$ U[0,1] < 1 / (1+e^{- \Delta E_i / T}) $*):
+        SET (*$x_i = 1$*); 
+      ELSE: 
+        SET (*$x_i = 0$*)
+    \end{lstlisting}
+\end{frame}
 
 \section{Experiments}
 \frame{
