@@ -417,6 +417,11 @@
     \includegraphics[trim={0.1cm 0.3cm 0cm 0cm},clip,width=\textwidth]{src/data_distribution_100_images}
 }
 
+\frame{
+    \frametitle{Experiment quality metric}
+    $$q = \sum_{i : x_\text{sample}(i) = 1} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i) - \sum_{i : x_\text{sample}(i) = 0} \frac1{20}\sum_{\text{20 recalls}}x_\text{restore}(i)$$
+}
+
 \fi
 
 %%%%%%%%%%%%%%
